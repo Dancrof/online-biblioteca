@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router'
 import BookListPage from '../module/Books/BookListPage'
 import { Suspense } from 'react'
 import React from 'react'
+import { LoadingPage } from '../module/Loading/LoadingPage'
 
 const BookLayout = React.lazy(() => import('../module/Layouts/BookLayout'))
 const BookDetail = React.lazy(() => import('../module/Books/BookDetailPage'))
@@ -11,13 +12,13 @@ export const AppRouter = () => {
         <BrowserRouter>
             <Routes>
                 <Route path="/books" element={
-                    <Suspense fallback={<div>Loading layout...</div>}>
+                    <Suspense fallback={<LoadingPage />}>
                         <BookLayout />
                     </Suspense>
                 } >
                     <Route index element={<BookListPage />} />
                     <Route path=":id" element={
-                        <Suspense fallback={<div>Loading...</div>}>
+                        <Suspense fallback={<LoadingPage />}>
                             <BookDetail />
                         </Suspense>
 
