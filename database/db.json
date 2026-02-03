@@ -1,0 +1,105 @@
+{
+  "usuarios": [
+    {
+      "id": 1,
+      "cedula": "0999999999",
+      "nombreCompleo": "Juan Carlos",
+      "apellidoCompleto": "Quintero Zabaleta",
+      "telefono": "0999999999",
+      "dirreccion": "Sucre y Maldonado",
+      "correo": "juanquintero@example.com",
+      "contrasena": "password123",
+      "estado": true
+    }
+  ],
+  "libros": [
+    {
+      "id": 1,
+      "titulo": "Cien anos de soledad",
+      "autor": "Gabriel Garcia Marquez",
+      "anioPublicacion": 1967,
+      "isbn": "9788432225072",
+      "categoria": "Novela",
+      "idioma": "Espanol",
+      "portada": "https://covers.openlibrary.org/b/id/10523358-L.jpg",
+      "sinopsis": "La historia de la familia Buendia en Macondo.",
+      "criticas": "Obra maestra del realismo magico.",
+      "disponible": true
+    },
+    {
+      "id": 2,
+      "titulo": "1984",
+      "autor": "George Orwell",
+      "anioPublicacion": 1949,
+      "isbn": "9780451524935",
+      "categoria": "Distopia",
+      "idioma": "Ingles",
+      "portada": "https://covers.openlibrary.org/b/id/7222246-L.jpg",
+      "sinopsis": "Un mundo vigilado por el Gran Hermano.",
+      "criticas": "Impactante y vigente.",
+      "disponible": true
+    },
+    {
+      "id": 3,
+      "titulo": "El principito",
+      "autor": "Antoine de Saint-Exupery",
+      "anioPublicacion": 1943,
+      "isbn": "9780156012195",
+      "categoria": "Fabula",
+      "idioma": "Frances",
+      "portada": "https://covers.openlibrary.org/b/id/10909258-L.jpg",
+      "sinopsis": "Reflexiones sobre la vida y el amor.",
+      "criticas": "Sencillo y profundo.",
+      "disponible": true
+    },
+    {
+      "id": 48,
+      "titulo": "El senor de los anillos",
+      "autor": "J.R.R. Tolkien",
+      "anioPublicacion": 1954,
+      "isbn": "9780261102385",
+      "categoria": "Fantasia",
+      "idioma": "Ingles",
+      "portada": "https://covers.openlibrary.org/b/id/8231856-L.jpg",
+      "sinopsis": "Una epica lucha entre el bien y el mal.",
+      "criticas": "Legendario.",
+      "disponible": true
+    },
+    {
+      "id": 49,
+      "titulo": "Cronica de una muerte anunciada",
+      "autor": "Gabriel Garcia Marquez",
+      "anioPublicacion": 1981,
+      "isbn": "9788432225003",
+      "categoria": "Novela",
+      "idioma": "Espanol",
+      "portada": "https://covers.openlibrary.org/b/id/8225231-L.jpg",
+      "sinopsis": "Un asesinato anunciado por todo un pueblo.",
+      "criticas": "Breve e intensa.",
+      "disponible": false
+    },
+    {
+      "id": 50,
+      "titulo": "Fahrenheit 451",
+      "autor": "Ray Bradbury",
+      "anioPublicacion": 1953,
+      "isbn": "9781451673319",
+      "categoria": "Ciencia ficcion",
+      "idioma": "Ingles",
+      "portada": "https://covers.openlibrary.org/b/id/9251994-L.jpg",
+      "sinopsis": "Un mundo donde los libros estan prohibidos.",
+      "criticas": "Critica social poderosa.",
+      "disponible": true
+    }
+  ],
+  "alquileres": [
+    {
+      "id": 1,
+      "usuarioId": 1,
+      "librosIds": [48, 49],
+      "fechaInicio": "2026-01-20",
+      "fechaFin": "2026-02-03",
+      "estado": true
+    }
+  ]
+}

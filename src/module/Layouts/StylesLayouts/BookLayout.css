@@ -1,0 +1,394 @@
+/* ========================================
+   BEM: LAYOUT STYLES
+   ======================================== */
+
+/* BEM: Block - Main Layout */
+.layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+/* ========================================
+   BEM: HEADER STYLES
+   ======================================== */
+
+.layout__header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 1rem 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.layout__header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+}
+
+.layout__logo {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.layout__title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* BEM: Element - Navigation */
+.layout__nav {
+  flex-grow: 1;
+}
+
+.layout__nav-list {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 2rem;
+}
+
+.layout__nav-item {
+  position: relative;
+}
+
+.layout__nav-link {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+  padding: 0.5rem 0;
+  border-bottom: 2px solid transparent;
+}
+
+.layout__nav-link:hover {
+  color: #e9ecef;
+  border-bottom-color: #e9ecef;
+}
+
+/* BEM: Element - User Section */
+.layout__user {
+  flex-shrink: 0;
+}
+
+/* ========================================
+   BEM: WRAPPER (Header + Sidebar + Main)
+   ======================================== */
+
+.layout__wrapper {
+  display: flex;
+  flex: 1;
+  gap: 0;
+}
+
+/* ========================================
+   BEM: SIDEBAR STYLES
+   ======================================== */
+
+.layout__sidebar {
+  width: 280px;
+  background-color: white;
+  border-right: 1px solid #e9ecef;
+  padding: 2rem 1.5rem;
+  overflow-y: auto;
+  position: sticky;
+  top: 70px;
+  height: calc(100vh - 70px);
+}
+
+.layout__sidebar-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* BEM: Element - Sidebar Title */
+.layout__sidebar-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* BEM: Element - Sidebar List */
+.layout__sidebar-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.layout__sidebar-item {
+  display: flex;
+}
+
+.layout__sidebar-link {
+  color: #495057;
+  text-decoration: none;
+  padding: 0.75rem 1rem;
+  border-radius: 0.25rem;
+  transition: all 0.3s ease;
+  width: 100%;
+  border-left: 3px solid transparent;
+  font-weight: 500;
+}
+
+.layout__sidebar-link:hover {
+  background-color: #f1f3f5;
+  color: #667eea;
+  border-left-color: #667eea;
+}
+
+/* BEM: Element - Sidebar Divider */
+.layout__sidebar-divider {
+  margin: 0;
+  border: none;
+  border-top: 1px solid #e9ecef;
+}
+
+/* BEM: Element - Sidebar Filter */
+.layout__sidebar-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.layout__sidebar-filter label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 0.25rem;
+}
+
+.layout__sidebar-filter .form-select,
+.layout__sidebar-filter .form-range,
+.layout__sidebar-filter .form-check {
+  font-size: 0.875rem;
+}
+
+/* ========================================
+   BEM: MAIN CONTENT AREA
+   ======================================== */
+
+.layout__main {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+/* ========================================
+   BEM: FOOTER STYLES
+   ======================================== */
+
+.layout__footer {
+  background-color: #2c3e50;
+  color: white;
+  padding: 3rem 0 0;
+  margin-top: auto;
+  border-top: 1px solid #e9ecef;
+}
+
+.layout__footer-section {
+  padding: 2rem 1rem;
+  border-right: 1px solid #34495e;
+}
+
+.layout__footer-section:last-child {
+  border-right: none;
+}
+
+/* BEM: Element - Footer Title */
+.layout__footer-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #ecf0f1;
+}
+
+/* BEM: Element - Footer Text */
+.layout__footer-text {
+  font-size: 0.9rem;
+  color: #bdc3c7;
+  line-height: 1.6;
+}
+
+/* BEM: Element - Footer List */
+.layout__footer-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* BEM: Element - Footer Link */
+.layout__footer-link {
+  color: #bdc3c7;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: color 0.3s ease;
+}
+
+.layout__footer-link:hover {
+  color: #ecf0f1;
+  text-decoration: underline;
+}
+
+/* BEM: Element - Social Links */
+.layout__social {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.layout__social-link {
+  color: #bdc3c7;
+  text-decoration: none;
+  font-size: 0.9rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid #34495e;
+  border-radius: 0.25rem;
+  transition: all 0.3s ease;
+  display: inline-block;
+}
+
+.layout__social-link:hover {
+  background-color: #667eea;
+  border-color: #667eea;
+  color: white;
+}
+
+/* BEM: Element - Footer Bottom */
+.layout__footer-bottom {
+  text-align: center;
+  padding: 2rem 1rem;
+  border-top: 1px solid #34495e;
+  color: #95a5a6;
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+
+@media (max-width: 1024px) {
+  .layout__sidebar {
+    width: 240px;
+    padding: 1.5rem 1rem;
+  }
+
+  .layout__nav-list {
+    gap: 1rem;
+  }
+
+  .layout__main {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .layout__header-content {
+    gap: 1rem;
+  }
+
+  .layout__title {
+    font-size: 1.25rem;
+  }
+
+  .layout__nav-list {
+    gap: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .layout__wrapper {
+    flex-direction: column;
+  }
+
+  .layout__sidebar {
+    width: 100%;
+    position: relative;
+    top: 0;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid #e9ecef;
+    padding: 1.5rem;
+  }
+
+  .layout__main {
+    padding: 1rem;
+  }
+
+  .layout__footer-section {
+    border-right: none;
+    border-bottom: 1px solid #34495e;
+    padding: 1.5rem;
+  }
+
+  .layout__footer-section:last-child {
+    border-bottom: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .layout__header {
+    padding: 0.75rem 0;
+  }
+
+  .layout__header-content {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .layout__title {
+    font-size: 1rem;
+  }
+
+  .layout__nav-list {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .layout__nav-link {
+    display: block;
+    padding: 0.5rem;
+  }
+
+  .layout__sidebar {
+    padding: 1rem;
+  }
+
+  .layout__sidebar-title {
+    font-size: 0.9rem;
+  }
+
+  .layout__main {
+    padding: 0.75rem;
+  }
+
+  .layout__footer-title {
+    font-size: 0.9rem;
+  }
+
+  .layout__footer-text,
+  .layout__footer-link {
+    font-size: 0.85rem;
+  }
+}
