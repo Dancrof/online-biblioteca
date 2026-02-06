@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import './Styles/BookListPage.css';
 import { getBooks } from '../../Services/BookService';
 import { useNavigate } from 'react-router';
+import { PaginationPage } from '../Pagination/PaginationPage';
+import type { IPaginate } from '../../interfaces/IPaginate';
 
 interface Book {
   id: number;
@@ -20,12 +22,22 @@ interface Book {
 export default function BookListPage() {
 
 
-  const [books, setBooks] = useState<Book[]>([]);
+  const [paginateBooks, setPaginateBooks] = useState<IPaginate<Book>>({
+    data: [], first: 1,
+    prev: null,
+    next: 2,
+    last: 2,
+    pages: 2,
+    items: 6,
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
     // Aqui se podria cargar la lista de libros desde un servicio
-    getBooks().then((data) => setBooks(data));
+    getBooks().then((data) => {
+      console.log("Libros obtenidos:", data);
+      setPaginateBooks(data);
+    });
   }, []);
 
   return (
@@ -34,7 +46,7 @@ export default function BookListPage() {
         <h1 className="book-list__title mb-5">Catálogo de Libros</h1>
 
         <div className="row g-4">
-          {books?.map((book) => (
+          {paginateBooks.data?.map((book) => (
             <div className="col-12 col-sm-6 col-lg-3" key={book.id}>
               <article className={`book-card ${book.disponible ? 'book-card--available' : 'book-card--unavailable'}`}>
 
@@ -90,10 +102,10 @@ export default function BookListPage() {
                   {/* Footer con ISBN y botón */}
                   <div className="book-card__footer border-top pt-3 mt-3">
                     <small className="book-card__isbn text-muted">ISBN: {book.isbn}</small>
-                    <button 
-                    className="btn btn-primary mt-3 w-100" 
-                    disabled={!book.disponible}
-                    onClick={() => navigate(`books/${book.id}`)}
+                    <button
+                      className="btn btn-primary mt-3 w-100"
+                      disabled={!book.disponible}
+                      onClick={() => navigate(`books/${book.id}`)}
                     >
                       Reservar libro
                     </button>
@@ -103,6 +115,7 @@ export default function BookListPage() {
             </div>
           ))}
         </div>
+        <PaginationPage next={paginateBooks.next} prev={paginateBooks.prev} />
       </div>
     </main>
   );
