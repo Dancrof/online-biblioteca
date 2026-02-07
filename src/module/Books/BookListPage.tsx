@@ -30,14 +30,17 @@ export default function BookListPage() {
     pages: 2,
     items: 6,
   });
+  
   const navigate = useNavigate();
 
-  useEffect(() => {
-    // Aqui se podria cargar la lista de libros desde un servicio
-    getBooks().then((data) => {
-      console.log("Libros obtenidos:", data);
+  const loadPage = (page: number) => {
+    getBooks(page).then((data) => {
       setPaginateBooks(data);
     });
+  };
+
+  useEffect(() => {
+    loadPage(1);
   }, []);
 
   return (
@@ -115,7 +118,14 @@ export default function BookListPage() {
             </div>
           ))}
         </div>
-        <PaginationPage next={paginateBooks.next} prev={paginateBooks.prev} />
+        <PaginationPage
+          first={paginateBooks.first}
+          prev={paginateBooks.prev}
+          next={paginateBooks.next}
+          last={paginateBooks.last}
+          pages={paginateBooks.pages}
+          onPageChange={loadPage}
+        />
       </div>
     </main>
   );
