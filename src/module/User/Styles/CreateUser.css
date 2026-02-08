@@ -1,0 +1,36 @@
+/* ========================================
+   BEM: CREATE USER STYLES
+   ======================================== */
+
+.create-user {
+  background-color: #f8f9fa;
+  min-height: 100vh;
+  padding-bottom: 2rem;
+}
+
+.create-user__title {
+  color: #2c3e50;
+  font-weight: 700;
+  font-size: 1.75rem;
+}
+
+.create-user__form .card {
+  border: 1px solid #dee2e6;
+  border-radius: 0.5rem;
+}
+
+.create-user__form .card-body {
+  padding: 1.25rem;
+}
+
+.create-user__form .form-control:focus,
+.create-user__form .form-check-input:focus {
+  border-color: #86b7fe;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+@media (max-width: 576px) {
+  .create-user__title {
+    font-size: 1.35rem;
+  }
+}

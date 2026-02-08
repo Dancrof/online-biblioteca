@@ -1,0 +1,100 @@
+/* ========================================
+   BEM: CREATE RENT STYLES
+   ======================================== */
+
+.create-rent {
+  background-color: #f8f9fa;
+  min-height: 100vh;
+  padding-bottom: 2rem;
+}
+
+.create-rent__title {
+  color: #2c3e50;
+  font-weight: 700;
+  font-size: 1.75rem;
+}
+
+.create-rent__form .card {
+  border: 1px solid #dee2e6;
+  border-radius: 0.5rem;
+}
+
+.create-rent__form .card-body {
+  padding: 1.25rem;
+}
+
+/* Libros list - selectable items */
+.create-rent__books-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 280px;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
+.create-rent__books-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.create-rent__books-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.create-rent__books-list::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.create-rent__book-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid #dee2e6;
+  border-radius: 0.375rem;
+  background: #fff;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.create-rent__book-item:hover {
+  background-color: #f8f9fa;
+  border-color: #adb5bd;
+}
+
+.create-rent__book-item--selected {
+  background-color: #e7f1ff;
+  border-color: #0d6efd;
+}
+
+.create-rent__book-check {
+  flex-shrink: 0;
+}
+
+.create-rent__book-title {
+  font-weight: 500;
+  color: #2c3e50;
+  flex: 1;
+  text-align: left;
+}
+
+.create-rent__book-meta {
+  flex-shrink: 0;
+}
+
+@media (max-width: 576px) {
+  .create-rent__title {
+    font-size: 1.35rem;
+  }
+
+  .create-rent__book-item {
+    flex-wrap: wrap;
+  }
+
+  .create-rent__book-meta {
+    width: 100%;
+    margin-left: 1.75rem;
+  }
+}

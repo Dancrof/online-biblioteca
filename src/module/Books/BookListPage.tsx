@@ -30,7 +30,7 @@ export default function BookListPage() {
     pages: 2,
     items: 6,
   });
-  
+
   const navigate = useNavigate();
 
   const loadPage = (page: number) => {
@@ -108,7 +108,7 @@ export default function BookListPage() {
                     <button
                       className="btn btn-primary mt-3 w-100"
                       disabled={!book.disponible}
-                      onClick={() => navigate(`books/${book.id}`)}
+                      onClick={() => navigate('/rents/new', { state: { bookId: book.id } })}
                     >
                       Reservar libro
                     </button>
@@ -118,6 +118,7 @@ export default function BookListPage() {
             </div>
           ))}
         </div>
+        <div className='pt-5'>
         <PaginationPage
           first={paginateBooks.first}
           prev={paginateBooks.prev}
@@ -126,6 +127,7 @@ export default function BookListPage() {
           pages={paginateBooks.pages}
           onPageChange={loadPage}
         />
+        </div>
       </div>
     </main>
   );

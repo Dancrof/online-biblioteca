@@ -2,14 +2,15 @@ import './Styles/BookDetailPage.css';
 import type { Book } from '../../interfaces/IBook';
 import { useEffect, useState } from 'react';
 import { getBookById } from '../../Services/BookService';
-import { Link, useParams } from 'react-router';
+import { Link, useNavigate, useParams } from 'react-router';
 
 
 
 export default function BookDetailPage() {
 
 
-    const {id} = useParams<{id: string}>();
+    const { id } = useParams<{ id: string }>();
+    const navigate = useNavigate();
     const [bookData, setBookData] = useState<Book | null>(null);
 
     useEffect(() => {
@@ -53,7 +54,7 @@ export default function BookDetailPage() {
           <div className="book-detail__actions">
             <button
               className={`book-detail__btn book-detail__btn--primary ${!bookData?.disponible ? 'book-detail__btn--disabled' : ''}`}
-              onClick={() => bookData?.disponible}
+              onClick={() => bookData?.disponible && navigate('/rents/new', { state: { bookId: bookData.id } })}
               disabled={!bookData?.disponible}
             >
               Reservar libro

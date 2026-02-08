@@ -2,13 +2,14 @@ import { api } from "../Config/constant";
 import type { Book, BookQueryParams } from "../interfaces/IBook";
 import type { AxiosResponse } from "axios";
 import type { IPaginate } from "../interfaces/IPaginate";
+import { handleErrorService } from "./Segurity/Errors";
 
-
-const handleError = <T>(err: unknown, fallback: T): T => {
-    console.error("Error en BookService:", err);
-    return fallback;
-}
-
+/**
+ * Obtiene los libros
+ * @param paginaActual - La página actual
+ * @param cantidadPorPagina - La cantidad de libros por página
+ * @returns Los libros
+ */
 export const getBooks = async (paginaActual: number = 1, cantidadPorPagina: number = 4): Promise<IPaginate<Book>> => {
     try {
         const response: AxiosResponse<IPaginate<Book>> = await api.get("/libros", {
@@ -19,7 +20,7 @@ export const getBooks = async (paginaActual: number = 1, cantidadPorPagina: numb
         });
         return response.data;
     } catch (error) {
-        return handleError(error, {
+        return handleErrorService(error, {
             data: [],
             first: 1,
             prev: null,
@@ -33,16 +34,26 @@ export const getBooks = async (paginaActual: number = 1, cantidadPorPagina: numb
 
 };
 
+/**
+ * Obtiene un libro por su ID
+ * @param id - El ID del libro
+ * @returns El libro
+ */
 export const getBookById = async (id: number): Promise<Book | null> => {
     try {
         const res: AxiosResponse<Book> = await api.get(`/libros/${id}`);
         console.log("Respuesta de getBookById:", res);
         return res.data;
     } catch (err) {
-        return handleError(err, null);
+        return handleErrorService(err, null);
     }
 };
 
+/**
+ * Filtra los libros
+ * @param params - Los parámetros de filtrado
+ * @returns Los libros filtrados
+ */
 export const filterBooks = async (
     params: BookQueryParams
 ): Promise<Book[]> => {
@@ -65,6 +76,6 @@ export const filterBooks = async (
 
         return response.data;
     } catch (error) {
-        return handleError(error, []);
+        return handleErrorService(error, []);
     }
 };

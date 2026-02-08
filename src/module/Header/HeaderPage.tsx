@@ -18,13 +18,17 @@ export const HeaderPage = () => {
                                 <Link to="/books" className="layout__nav-link">Catálogo</Link>
                             </li>
                             <li className="layout__nav-item">
-                                <Link to="/contacto" className="layout__nav-link">Contacto</Link>
+                                <Link to="/rents" className="layout__nav-link">Alquileres</Link>
                             </li>
                         </ul>
                     </nav>
                     <div className="layout__user">
                         <Link to="/auth" className="btn btn-outline-primary btn-sm">Login</Link>
                     </div>
+                    <Link to="/rents/new" className="btn btn-outline-primary btn-sm">
+                        <i className="bi bi-cart4"></i>
+                        <span className="badge bg-danger">10</span>
+                    </Link>
                 </div>
             </div>
         </header>
