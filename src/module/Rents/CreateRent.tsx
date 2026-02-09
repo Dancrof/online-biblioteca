@@ -1,6 +1,10 @@
-import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useEffect, useMemo, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import { useLocation, useNavigate } from 'react-router';
+import DatePicker from 'react-datepicker';
+import { es } from 'date-fns/locale';
+import { registerLocale } from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import { filterBooks } from '../../Services/BookService';
 import { postRent } from '../../Services/RentService';
 import type { IRent } from '../../interfaces/IRent';
@@ -8,25 +12,35 @@ import type { Book } from '../../interfaces/IBook';
 import { api } from '../../Config/constant';
 import './Styles/CreateRent.css';
 import { Link } from 'react-router';
+import { useRentCart } from '../../context/RentCartContext';
+
+registerLocale('es', es);
 
 /**
  * Opciones de usuario
  */
 type UserOption = { id: number; nombreCompleo: string };
 
+/** Fecha actual en formato YYYY-MM-DD */
+function getTodayString(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
 
 
 /**
- * Valores por defecto del formulario de creación de alquiler
+ * Valores por defecto del formulario (fechaInicio se fija al montar con la fecha actual)
  */
-const defaultValues: IRent = {
-  id: 0,
-  usuarioId: 0,
-  librosIds: [],
-  fechaInicio: '',
-  fechaFin: '',
-  estado: false,
-};
+function getDefaultValues(): IRent {
+  return {
+    id: 0,
+    usuarioId: 0,
+    librosIds: [],
+    fechaInicio: getTodayString(),
+    fechaFin: '',
+    estado: false,
+  };
+}
 
 /**
  * Estado de la creación de alquiler
@@ -40,6 +54,7 @@ type CreateRentLocationState = { bookId?: number } | null;
 export const CreateRent = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { bookIds: rentCartIds, addToRentCart, removeFromRentCart, clearRentCart } = useRentCart();
   const [users, setUsers] = useState<UserOption[]>([]);
   const [books, setBooks] = useState<Book[]>([]);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -49,16 +64,17 @@ export const CreateRent = () => {
    */
   const {
     register,
+    control,
     handleSubmit,
     watch,
     setValue,
     setError,
-    getValues,
     formState: { errors, isSubmitting },
-  } = useForm<IRent>({ defaultValues });
+  } = useForm<IRent>({ defaultValues: useMemo(() => getDefaultValues(), []) });
 
   const fechaInicio = watch('fechaInicio');
   const librosIds = watch('librosIds');
+  const todayStr = useMemo(() => getTodayString(), []);
 
   /**
    * Efecto para obtener los usuarios y libros
@@ -69,16 +85,20 @@ export const CreateRent = () => {
   }, []);
 
   /**
-   * Efecto para agregar el libro cuando se llega desde "Reservar libro" (append, sin reemplazar)
+   * Agregar al carrito global cuando se llega con state.bookId (ej. enlace directo)
    */
   useEffect(() => {
     const state = location.state as CreateRentLocationState;
     const bookId = state?.bookId;
-    if (bookId == null) return;
-    const actual = getValues('librosIds') ?? [];
-    if (actual.includes(bookId)) return;
-    setValue('librosIds', [...actual, bookId]);
-  }, [location.state, setValue, getValues]);
+    if (bookId != null) addToRentCart(bookId);
+  }, [location.state, addToRentCart]);
+
+  /**
+   * Sincronizar formulario con el carrito global (una sola fuente de verdad)
+   */
+  useEffect(() => {
+    setValue('librosIds', rentCartIds);
+  }, [rentCartIds, setValue]);
 
   /**
    * Manejador del formulario de creación de alquiler
@@ -90,40 +110,43 @@ export const CreateRent = () => {
       setError('librosIds', { message: 'Selecciona al menos un libro' });
       return;
     }
-    const payload: IRent = {
-      id: 0,
+    const payload = {
+      // omit id, let backend generate
       usuarioId: Number(data.usuarioId),
       librosIds: data.librosIds.map(Number),
-      fechaInicio: data.fechaInicio,
-      fechaFin: data.fechaFin,
+      fechaInicio: (data.fechaInicio || getTodayString()).slice(0, 10),
+      fechaFin: (data.fechaFin || '').slice(0, 10),
       estado: data.estado,
     };
     try {
       const created = await postRent(payload);
-      if (created?.id) navigate('/rents');
-      else setSubmitError('No se pudo crear el alquiler.');
+      if (created?.id) {
+        clearRentCart();
+        navigate('/rents');
+      } else setSubmitError('No se pudo crear el alquiler.');
     } catch {
       setSubmitError('Error al guardar. Intenta de nuevo.');
     }
   };
 
   /**
-   * Manejador para agregar o quitar un libro
+   * Manejador para agregar o quitar un libro (actualiza formulario y carrito global)
    * @param bookId - El ID del libro
    */
   const toggleBookId = (bookId: number) => {
-    setValue(
-      'librosIds',
-      librosIds.includes(bookId)
-        ? librosIds.filter((id) => id !== bookId)
-        : [...librosIds, bookId]
-    );
+    if (librosIds.includes(bookId)) {
+      removeFromRentCart(bookId);
+      setValue('librosIds', librosIds.filter((id) => id !== bookId));
+    } else {
+      addToRentCart(bookId);
+      setValue('librosIds', [...librosIds, bookId]);
+    }
   };
 
   /**
    * Fecha mínima de fin
    */
-  const minFechaFin = fechaInicio || undefined;
+  const minFechaFin = fechaInicio || todayStr;
 
   return (
     <main className="create-rent">
@@ -199,48 +222,46 @@ export const CreateRent = () => {
               </div>
             </div>
 
-            {/* Fechas */}
-            <div className="col-12 col-md-6">
-              <div className="card h-100 shadow-sm">
-                <div className="card-body">
-                  <label className="form-label fw-semibold">
-                    <i className="bi bi-calendar-event text-primary me-2" />
-                    Fecha de inicio
-                  </label>
-                  <input
-                    type="date"
-                    className={`form-control ${errors.fechaInicio ? 'is-invalid' : ''}`}
-                    {...register('fechaInicio', { required: 'Fecha de inicio obligatoria' })}
-                  />
-                  {errors.fechaInicio && (
-                    <div className="invalid-feedback d-block">{errors.fechaInicio.message}</div>
-                  )}
-                </div>
-              </div>
-            </div>
+            {/* Fecha de inicio: automática (hoy), oculta y no editable */}
+            <input type="hidden" {...register('fechaInicio', { required: true })} />
 
+            {/* Fecha de fin: react-datepicker (formato YYYY-MM-DD) */}
             <div className="col-12 col-md-6">
               <div className="card h-100 shadow-sm">
                 <div className="card-body">
-                  <label className="form-label fw-semibold">
+                  <label className="form-label fw-semibold" htmlFor="create-rent-fecha-fin">
                     <i className="bi bi-calendar-range text-primary me-2" />
-                    Fecha de fin
+                    Fecha de fin del alquiler
                   </label>
-                  <input
-                    type="date"
-                    className={`form-control ${errors.fechaFin ? 'is-invalid' : ''}`}
-                    min={minFechaFin}
-                    {...register('fechaFin', {
+                  <Controller
+                    name="fechaFin"
+                    control={control}
+                    rules={{
                       required: 'Fecha de fin obligatoria',
                       validate: (v) =>
-                        !fechaInicio || v >= fechaInicio
+                        !v || !minFechaFin || v >= minFechaFin
                           ? true
                           : 'La fecha fin debe ser igual o posterior al inicio',
-                    })}
+                    }}
+                    render={({ field }) => (
+                      <DatePicker
+                        id="create-rent-fecha-fin"
+                        selected={field.value ? new Date(field.value + 'T12:00:00') : null}
+                        onChange={(date: Date | null) => field.onChange(date ? date.toISOString().slice(0, 10) : '')}
+                        onBlur={field.onBlur}
+                        minDate={minFechaFin ? new Date(minFechaFin + 'T12:00:00') : undefined}
+                        dateFormat="yyyy-MM-dd"
+                        locale="es"
+                        placeholderText="Seleccione la fecha"
+                        className={`form-control form-control-lg ${errors.fechaFin ? 'is-invalid' : ''}`}
+                        autoComplete="off"
+                      />
+                    )}
                   />
                   {errors.fechaFin && (
                     <div className="invalid-feedback d-block">{errors.fechaFin.message}</div>
                   )}
+                  <small className="text-muted">Formato: AAAA-MM-DD</small>
                 </div>
               </div>
             </div>
@@ -257,31 +278,39 @@ export const CreateRent = () => {
                     <div className="text-danger small mb-2">{errors.librosIds.message}</div>
                   )}
                   <div className="create-rent__books-list">
-                    {books.map((book) => (
-                      <div
-                        key={book.id}
-                        className={`create-rent__book-item ${librosIds.includes(book.id) ? 'create-rent__book-item--selected' : ''}`}
-                        onClick={() => toggleBookId(book.id)}
-                        onKeyDown={(e) => e.key === 'Enter' && toggleBookId(book.id)}
-                        role="button"
-                        tabIndex={0}
-                      >
-                        <input
-                          type="checkbox"
-                          className="form-check-input create-rent__book-check"
-                          checked={librosIds.includes(book.id)}
-                          onChange={() => toggleBookId(book.id)}
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                        <span className="create-rent__book-title">{book.titulo}</span>
-                        <span className="create-rent__book-meta text-muted small">
-                          {book.autor} · ID {book.id}
-                        </span>
-                      </div>
-                    ))}
+                    {librosIds.length === 0 ? (
+                      <p className="text-muted small mb-0">No hay libros agregados.</p>
+                    ) : (
+                      books
+                        .filter((book) => librosIds.includes(book.id))
+                        .map((book) => (
+                          <div
+                            key={book.id}
+                            className="create-rent__book-item create-rent__book-item--selected"
+                            onClick={() => toggleBookId(book.id)}
+                            onKeyDown={(e) => e.key === 'Enter' && toggleBookId(book.id)}
+                            role="button"
+                            tabIndex={0}
+                          >
+                            <input
+                              type="checkbox"
+                              className="form-check-input create-rent__book-check"
+                              checked
+                              onChange={() => toggleBookId(book.id)}
+                              onClick={(e) => e.stopPropagation()}
+                            />
+                            <span className="create-rent__book-title">{book.titulo}</span>
+                            <span className="create-rent__book-meta text-muted small">
+                              {book.autor} · ID {book.id}
+                            </span>
+                          </div>
+                        ))
+                    )}
                   </div>
-                  {books.length === 0 && (
-                    <p className="text-muted small mb-0">No hay libros cargados.</p>
+                  {librosIds.length > 0 && (
+                    <p className="text-muted small mt-2 mb-0">
+                      Agrega libros desde el <Link to="/books">catálogo</Link>.
+                    </p>
                   )}
                 </div>
               </div>

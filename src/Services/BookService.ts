@@ -1,23 +1,40 @@
 import { api } from "../Config/constant";
-import type { Book, BookQueryParams } from "../interfaces/IBook";
+import type { Book, BookQueryParams, BookFiltersState } from "../interfaces/IBook";
 import type { AxiosResponse } from "axios";
 import type { IPaginate } from "../interfaces/IPaginate";
 import { handleErrorService } from "./Segurity/Errors";
 
 /**
- * Obtiene los libros
+ * Obtiene los libros con paginación y filtros opcionales
  * @param paginaActual - La página actual
  * @param cantidadPorPagina - La cantidad de libros por página
- * @returns Los libros
+ * @param queryParams - Filtros opcionales (categoría, idioma, disponible, año, etc.)
+ * @returns Los libros paginados
  */
-export const getBooks = async (paginaActual: number = 1, cantidadPorPagina: number = 4): Promise<IPaginate<Book>> => {
+export const getBooks = async (
+    paginaActual: number = 1,
+    cantidadPorPagina: number = 4,
+    queryParams?: BookQueryParams
+): Promise<IPaginate<Book>> => {
     try {
-        const response: AxiosResponse<IPaginate<Book>> = await api.get("/libros", {
-            params: {
-                _page: paginaActual,
-                _per_page: cantidadPorPagina,
-            }
-        });
+        const params: Record<string, string | number | boolean> = {
+            _page: paginaActual,
+            _per_page: cantidadPorPagina,
+        };
+
+        if (queryParams) {
+            if (queryParams.titulo) params["titulo_like"] = queryParams.titulo;
+            if (queryParams.autor) params["autor_like"] = queryParams.autor;
+            if (queryParams.categoria) params["categoria"] = queryParams.categoria;
+            if (queryParams.idioma) params["idioma"] = queryParams.idioma;
+            if (queryParams.disponible !== undefined) params["disponible"] = queryParams.disponible;
+            if (queryParams.anioMin != null) params["anioPublicacion_gte"] = queryParams.anioMin;
+            if (queryParams.anioMax != null) params["anioPublicacion_lte"] = queryParams.anioMax;
+            if (queryParams.sort) params["_sort"] = queryParams.sort;
+            if (queryParams.order) params["_order"] = queryParams.order;
+        }
+
+        const response: AxiosResponse<IPaginate<Book>> = await api.get("/libros", { params });
         return response.data;
     } catch (error) {
         return handleErrorService(error, {
@@ -30,8 +47,6 @@ export const getBooks = async (paginaActual: number = 1, cantidadPorPagina: numb
             items: 0
         });
     }
-
-
 };
 
 /**
@@ -66,6 +81,8 @@ export const filterBooks = async (
         if (params.idioma) queryParams["idioma"] = params.idioma;
         if (params.disponible !== undefined)
             queryParams["disponible"] = params.disponible;
+        if (params.anioMin != null) queryParams["anioPublicacion_gte"] = params.anioMin;
+        if (params.anioMax != null) queryParams["anioPublicacion_lte"] = params.anioMax;
 
         if (params.sort) queryParams["_sort"] = params.sort;
         if (params.order) queryParams["_order"] = params.order;
@@ -79,3 +96,16 @@ export const filterBooks = async (
         return handleErrorService(error, []);
     }
 };
+
+/**
+ * Convierte el estado de filtros del listado (BookFiltersState) a parámetros de consulta (BookQueryParams).
+ * Útil para usar con filterBooks o getBooks.
+ */
+export function filtersToQueryParams(filters: BookFiltersState): BookQueryParams {
+    const params: BookQueryParams = {};
+    if (filters.categoria) params.categoria = filters.categoria;
+    if (filters.idioma) params.idioma = filters.idioma;
+    if (filters.anioMax != null) params.anioMax = filters.anioMax;
+    if (filters.soloDisponibles) params.disponible = true;
+    return params;
+}

@@ -144,10 +144,23 @@
   width: 100%;
   border-left: 3px solid transparent;
   font-weight: 500;
+  background: none;
+  border-right: none;
+  border-top: none;
+  border-bottom: none;
+  cursor: pointer;
+  text-align: left;
+  font-size: inherit;
 }
 
 .layout__sidebar-link:hover {
   background-color: #f1f3f5;
+  color: #667eea;
+  border-left-color: #667eea;
+}
+
+.layout__sidebar-link--active {
+  background-color: #e7e9fd;
   color: #667eea;
   border-left-color: #667eea;
 }

@@ -1,0 +1,15 @@
+# API con json-server (database/db.json)
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Instalar json-server de forma global para simplificar
+RUN npm install -g json-server
+
+# Copiar solo la base de datos
+COPY database/db.json ./database/
+
+EXPOSE 4000
+
+# --watch para recargar en cambios (en dev); en prod puedes quitar --watch
+CMD ["json-server", "--watch", "database/db.json", "--host", "0.0.0.0", "--port", "4000"]

@@ -13,7 +13,7 @@ const textColorClasses: string[] = [
 
 export const LoadingPage = () => {
 
-    const [textColors, setTextColors] = useState<string[]>(textColorClasses);
+    const [textColors] = useState<string[]>(textColorClasses);
 
     return (
 

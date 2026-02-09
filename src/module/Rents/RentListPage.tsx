@@ -40,13 +40,13 @@ export default function RentListPage() {
       <div className="container-lg py-5">
         <h1 className="rent-list__title mb-5">Alquileres</h1>
 
-        {paginateRents.data.length === 0 ? (
+        {(paginateRents.data ?? []).length === 0 ? (
           <p className="rent-list__empty">
             No hay alquileres registrados.
           </p>
         ) : (
           <div className="row g-4">
-            {paginateRents.data.map((rent) => (
+            {(paginateRents.data ?? []).map((rent) => (
               <div className="col-12 col-md-6 col-lg-4" key={rent.id}>
                 <article
                   className={`rent-card ${rent.estado ? 'rent-card--active' : 'rent-card--inactive'}`}
@@ -81,7 +81,7 @@ export default function RentListPage() {
                     <div className="rent-card__row">
                       <span className="rent-card__label">Libros:</span>
                       <div className="rent-card__books">
-                        {rent.librosIds.map((bookId) => (
+                        {(rent.librosIds ?? []).map((bookId) => (
                           <span key={bookId} className="rent-card__book-id">
                             #{bookId}
                           </span>

@@ -16,6 +16,14 @@ export interface BookPageProps {
   book: Book
 }
 
+/** Estado de filtros del sidebar para el listado de libros */
+export interface BookFiltersState {
+  categoria: string | null;
+  idioma: string | null;
+  anioMax: number | null;
+  soloDisponibles: boolean;
+}
+
 export interface BookQueryParams {
     titulo?: string;
     autor?: string;
@@ -23,6 +31,10 @@ export interface BookQueryParams {
     idioma?: string;
     disponible?: boolean;
     anioPublicacion?: number;
+    /** Año mínimo de publicación (json-server: anioPublicacion_gte) */
+    anioMin?: number;
+    /** Año máximo de publicación (json-server: anioPublicacion_lte) */
+    anioMax?: number;
 
     // json-server extras
     sort?: keyof Book;

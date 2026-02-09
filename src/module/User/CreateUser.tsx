@@ -5,6 +5,7 @@ import type { IUser } from '../../interfaces/IUser';
 import './Styles/CreateUser.css';
 import { postUser } from '../../Services/UserService';
 import { encoderPassword } from '../../Services/Segurity/Encrypt';
+import { EMAIL_REGEX } from '../../Config/constant';
 
 /**
  * Formulario de creación de usuario
@@ -26,11 +27,6 @@ const defaultValues: CreateUserForm = {
 };
 
 /**
- * Expresión regular para validar el correo electrónico
- */
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-/**
  * Componente para crear un usuario
  * @returns El componente de creación de usuario
  */
@@ -50,8 +46,7 @@ export const CreateUser = () => {
    */
   const onSubmit = async (data: CreateUserForm) => {
     setSubmitError(null);
-    const body: IUser = {
-      id: 0,
+    const body = {
       cedula: data.cedula.trim(),
       nombreCompleo: data.nombreCompleo.trim(),
       apellidoCompleto: data.apellidoCompleto.trim(),
@@ -63,11 +58,15 @@ export const CreateUser = () => {
     };
     try {
       const created = await postUser(body);
-      if (created?.id) navigate('/users');
-      else setSubmitError('No se pudo crear el usuario.');
-      navigate(-1);
-    } catch {
-      setSubmitError('Error al guardar el usuario. Intenta de nuevo.');
+      if (created?.id) {
+        navigate('/users');
+      } else {
+        setSubmitError('No se pudo crear el usuario.');
+      }
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : 'Error al guardar el usuario. Intenta de nuevo.';
+      setSubmitError(message);
     }
   };
 

@@ -1,7 +1,10 @@
 import { Link } from 'react-router'
 import '../Layouts/StylesLayouts/BookLayout.css'
+import { useRentCart } from '../../context/RentCartContext'
 
 export const HeaderPage = () => {
+    const { count } = useRentCart()
+
     return (
         <header className="layout__header">
             <div className="container-fluid">
@@ -25,9 +28,13 @@ export const HeaderPage = () => {
                     <div className="layout__user">
                         <Link to="/auth" className="btn btn-outline-primary btn-sm">Login</Link>
                     </div>
-                    <Link to="/rents/new" className="btn btn-outline-primary btn-sm">
+                    <Link to="/rents/new" className="btn btn-outline-primary btn-sm position-relative">
                         <i className="bi bi-cart4"></i>
-                        <span className="badge bg-danger">10</span>
+                        {count > 0 && (
+                            <span className="badge bg-danger position-absolute top-0 start-100 translate-middle rounded-pill">
+                                {count}
+                            </span>
+                        )}
                     </Link>
                 </div>
             </div>

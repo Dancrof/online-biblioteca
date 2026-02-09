@@ -1,46 +1,62 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import './Styles/BookListPage.css';
-import { getBooks } from '../../Services/BookService';
-import { useNavigate } from 'react-router';
+import { filterBooks, filtersToQueryParams } from '../../Services/BookService';
+import { useNavigate, useOutletContext } from 'react-router';
 import { PaginationPage } from '../Pagination/PaginationPage';
 import type { IPaginate } from '../../interfaces/IPaginate';
+import type { BookFiltersState } from '../../interfaces/IBook';
+import type { Book } from '../../interfaces/IBook';
+import { ITEMS_PER_PAGE } from '../../Config/constant';
+import { useRentCart } from '../../context/RentCartContext';
 
-interface Book {
-  id: number;
-  titulo: string;
-  autor: string;
-  anioPublicacion: number;
-  isbn: string;
-  categoria: string;
-  idioma: string;
-  portada: string;
-  sinopsis: string;
-  criticas: string;
-  disponible: boolean;
+
+
+type BookListOutletContext = { filters: BookFiltersState };
+
+function buildPaginate(allBooks: Book[], currentPage: number, perPage: number): IPaginate<Book> {
+  const items = allBooks.length;
+  const pages = Math.max(1, Math.ceil(items / perPage));
+  const page = Math.max(1, Math.min(currentPage, pages));
+  const start = (page - 1) * perPage;
+  const data = allBooks.slice(start, start + perPage);
+  return {
+    data,
+    first: 1,
+    prev: page > 1 ? page - 1 : null,
+    next: Math.min(page + 1, pages),
+    last: pages,
+    pages,
+    items,
+  };
 }
 
 export default function BookListPage() {
-
-
-  const [paginateBooks, setPaginateBooks] = useState<IPaginate<Book>>({
-    data: [], first: 1,
-    prev: null,
-    next: 2,
-    last: 2,
-    pages: 2,
-    items: 6,
-  });
+  const { filters } = useOutletContext<BookListOutletContext>();
+  const [allFilteredBooks, setAllFilteredBooks] = useState<Book[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const { addToRentCart } = useRentCart();
 
   const navigate = useNavigate();
 
-  const loadPage = (page: number) => {
-    getBooks(page).then((data) => {
-      setPaginateBooks(data);
+  const loadFilteredBooks = useCallback(() => {
+    const queryParams = filtersToQueryParams(filters);
+    filterBooks(queryParams).then((books) => {
+      setAllFilteredBooks(books);
+      setCurrentPage(1);
     });
-  };
+  }, [filters]);
 
   useEffect(() => {
-    loadPage(1);
+    loadFilteredBooks();
+  }, [loadFilteredBooks]);
+
+  const paginateBooks = useMemo(
+    () => buildPaginate(allFilteredBooks, currentPage, ITEMS_PER_PAGE),
+    [allFilteredBooks, currentPage]
+  );
+
+  const loadPage = useCallback((page: number) => {
+    setCurrentPage(page);
   }, []);
 
   return (
@@ -108,7 +124,10 @@ export default function BookListPage() {
                     <button
                       className="btn btn-primary mt-3 w-100"
                       disabled={!book.disponible}
-                      onClick={() => navigate('/rents/new', { state: { bookId: book.id } })}
+                      onClick={() => {
+                        addToRentCart(book.id);
+                        navigate('/rents/new');
+                      }}
                     >
                       Reservar libro
                     </button>

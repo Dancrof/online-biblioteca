@@ -1,0 +1,26 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: online-biblioteca-api
+    ports:
+      - "4000:4000"
+    volumes:
+      # Montar la base de datos para persistencia y posibles cambios
+      - ./database/db.json:/app/database/db.json
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # URL que usará el navegador para llamar a la API (mismo host que el usuario)
+        VITE_URL_API: http://localhost:4000
+    container_name: online-biblioteca-web
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
+    restart: unless-stopped

@@ -1,3 +1,46 @@
+# Online Biblioteca
+
+Aplicación de biblioteca online con React + TypeScript + Vite y API con json-server.
+
+## Ejecución con Docker
+
+Requisito: [Docker](https://docs.docker.com/get-docker/) y [Docker Compose](https://docs.docker.com/compose/install/) instalados.
+
+```bash
+# Construir y levantar todos los servicios
+docker compose up --build
+
+# En segundo plano
+docker compose up -d --build
+```
+
+- **Frontend:** http://localhost:8080  
+- **API (json-server):** http://localhost:4000  
+
+Para usar otra URL de API en el frontend (por ejemplo en producción), pasa el argumento al construir la imagen:
+
+```bash
+docker build --build-arg VITE_URL_API=https://tu-api.com -f Dockerfile -t online-biblioteca-web .
+```
+
+## Desarrollo local (sin Docker)
+
+```bash
+npm install
+# Terminal 1: API
+npm run start:json-server
+# Terminal 2: Frontend
+npm run dev
+```
+
+Crea un archivo `.env` con:
+
+```
+VITE_URL_API=http://localhost:4000
+```
+
+---
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.

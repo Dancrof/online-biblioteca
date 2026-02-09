@@ -9,6 +9,7 @@ import { LoginPage } from '../module/Auth/LoginPage'
 import { CreateRent } from '../module/Rents/CreateRent'
 import { RentLayout } from '../module/Layouts/RentLayout'
 import { CreateUser } from '../module/User/CreateUser'
+import { RentCartProvider } from '../context/RentCartContext'
 
 const BookLayout = React.lazy(() => import('../module/Layouts/BookLayout'))
 const BookDetail = React.lazy(() => import('../module/Books/BookDetailPage'))
@@ -18,6 +19,7 @@ const RentListPage = React.lazy(() => import("../module/Rents/RentListPage"))
 export const AppRouter = () => {
     return (
         <BrowserRouter>
+            <RentCartProvider>
             <Routes>
                 <Route path='/auth' element={
                     <Suspense fallback={<LoadingPage />}>
@@ -72,6 +74,7 @@ export const AppRouter = () => {
                 <Route path="/" element={<Navigate to="/books" />} />
                 <Route path="*" element={<Navigate to="/books" />} />
             </Routes>
+            </RentCartProvider>
         </BrowserRouter>
     )
 }
