@@ -12,7 +12,7 @@
       "estado": true
     },
     {
-      "id": 0,
+      "id": "0",
       "cedula": "0850054347",
       "nombreCompleo": "Bryan Andres",
       "apellidoCompleto": "Caicedo Jimenez",
@@ -633,7 +633,7 @@
       "portada": "https://covers.openlibrary.org/b/id/8231856-L.jpg",
       "sinopsis": "Vida de un picaro en la Espana del Siglo de Oro.",
       "criticas": "Novela picaresca.",
-      "disponible": false
+      "disponible": true
     },
     {
       "id": "48",
@@ -659,7 +659,7 @@
       "portada": "https://covers.openlibrary.org/b/id/8225231-L.jpg",
       "sinopsis": "Un asesinato anunciado por todo un pueblo.",
       "criticas": "Breve e intensa.",
-      "disponible": false
+      "disponible": true
     },
     {
       "id": "50",
@@ -675,28 +675,5 @@
       "disponible": true
     }
   ],
-  "alquileres": [
-    {
-      "id": "1",
-      "usuarioId": 1,
-      "librosIds": [
-        48,
-        49
-      ],
-      "fechaInicio": "2026-01-20",
-      "fechaFin": "2026-02-03",
-      "estado": true
-    },
-    {
-      "id": "36d9",
-      "usuarioId": 1,
-      "librosIds": [
-        4,
-        2
-      ],
-      "fechaInicio": "2026-02-09",
-      "fechaFin": "2026-02-20",
-      "estado": true
-    }
-  ]
+  "alquileres": []
 }

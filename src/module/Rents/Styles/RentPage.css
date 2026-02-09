@@ -29,6 +29,13 @@
    BEM: RENT CARD STYLES
    ======================================== */
 
+.rent-card__link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  height: 100%;
+}
+
 .rent-card {
   background: white;
   border-radius: 0.5rem;
@@ -190,5 +197,192 @@
 
   .rent-card__label {
     min-width: auto;
+  }
+}
+
+/* ========================================
+   BEM: RENT DETAIL PAGE
+   ======================================== */
+
+.rent-detail {
+  background-color: #f8f9fa;
+  min-height: 100vh;
+  padding-bottom: 2rem;
+}
+
+.rent-detail__back {
+  margin-top: 0.5rem;
+}
+
+.rent-detail__loading,
+.rent-detail__not-found {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 20rem;
+  text-align: center;
+}
+
+.rent-detail__not-found-title {
+  color: #2c3e50;
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.rent-detail__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding: 1.25rem 1.5rem;
+  background: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  border-left: 4px solid #0d6efd;
+}
+
+.rent-detail__header-top {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.rent-detail__header-actions {
+  flex-shrink: 0;
+}
+
+.rent-detail__title {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+.rent-detail__badge {
+  padding: 0.4rem 0.85rem;
+  border-radius: 2rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.rent-detail__badge--active {
+  background-color: #198754;
+  color: white;
+}
+
+.rent-detail__badge--inactive {
+  background-color: #6c757d;
+  color: white;
+}
+
+.rent-detail__section {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.rent-detail__section-title {
+  margin: 0 0 1.25rem 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2c3e50;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #e9ecef;
+}
+
+.rent-detail__grid {
+  margin: 0;
+  display: grid;
+  gap: 1rem;
+}
+
+.rent-detail__row {
+  display: grid;
+  grid-template-columns: 10rem 1fr;
+  gap: 0.75rem;
+  align-items: baseline;
+}
+
+.rent-detail__label {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #495057;
+}
+
+.rent-detail__value {
+  margin: 0;
+  font-size: 1rem;
+  color: #2c3e50;
+}
+
+.rent-detail__empty-books {
+  margin: 0;
+  font-style: italic;
+}
+
+.rent-detail__books {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.rent-detail__book-card {
+  padding: 1.25rem;
+  background: #f8f9fa;
+  border-radius: 0.5rem;
+  border: 1px solid #e9ecef;
+}
+
+.rent-detail__book-title {
+  margin: 0 0 1rem 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #0d6efd;
+}
+
+.rent-detail__book-fields {
+  margin: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.rent-detail__book-row {
+  display: grid;
+  grid-template-columns: 6rem 1fr;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.rent-detail__book-row dt {
+  margin: 0;
+  font-weight: 600;
+  color: #6c757d;
+}
+
+.rent-detail__book-row dd {
+  margin: 0;
+  color: #2c3e50;
+}
+
+@media (max-width: 768px) {
+  .rent-detail__header {
+    padding: 1rem;
+  }
+
+  .rent-detail__title {
+    font-size: 1.4rem;
+  }
+
+  .rent-detail__row,
+  .rent-detail__book-row {
+    grid-template-columns: 1fr;
   }
 }

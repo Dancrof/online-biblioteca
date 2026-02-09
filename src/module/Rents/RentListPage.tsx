@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router';
 import './Styles/RentPage.css';
 import { getRents } from '../../Services/RentService';
+import { getUsers } from '../../Services/UserService';
 import type { IRent } from '../../interfaces/IRent';
 import { PaginationPage } from '../Pagination/PaginationPage';
 import type { IPaginate } from '../../interfaces/IPaginate';
@@ -24,6 +26,7 @@ export default function RentListPage() {
     pages: 1,
     items: 0
   });
+  const [userNames, setUserNames] = useState<Record<number, string>>({});
 
   const loadPage = (page: number) => {
     getRents(page).then((data) => {
@@ -33,6 +36,18 @@ export default function RentListPage() {
 
   useEffect(() => {
     loadPage(1);
+  }, []);
+
+  useEffect(() => {
+    getUsers().then((users) => {
+      if (!users) return;
+      const map: Record<number, string> = {};
+      users.forEach((u) => {
+        const id = typeof u.id === 'string' ? parseInt(u.id, 10) : u.id;
+        map[id] = `${u.nombreCompleo} ${u.apellidoCompleto}`.trim();
+      });
+      setUserNames(map);
+    });
   }, []);
 
     return (
@@ -48,6 +63,7 @@ export default function RentListPage() {
           <div className="row g-4">
             {(paginateRents.data ?? []).map((rent) => (
               <div className="col-12 col-md-6 col-lg-4" key={rent.id}>
+                <Link to={`${rent.id}`} className="rent-card__link">
                 <article
                   className={`rent-card ${rent.estado ? 'rent-card--active' : 'rent-card--inactive'}`}
                 >
@@ -63,7 +79,9 @@ export default function RentListPage() {
                   <div className="rent-card__body">
                     <div className="rent-card__row">
                       <span className="rent-card__label">Usuario:</span>
-                      <span className="rent-card__value">ID {rent.usuarioId}</span>
+                      <span className="rent-card__value">
+                        {userNames[rent.usuarioId] ?? `ID ${rent.usuarioId}`}
+                      </span>
                     </div>
 
                     <div className="rent-card__row">
@@ -90,6 +108,7 @@ export default function RentListPage() {
                     </div>
                   </div>
                 </article>
+                </Link>
               </div>
             ))}
           </div>

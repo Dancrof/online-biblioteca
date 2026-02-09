@@ -98,6 +98,21 @@ export const filterBooks = async (
 };
 
 /**
+ * Actualiza la disponibilidad de un libro
+ * @param id - El ID del libro
+ * @param disponible - Nuevo estado de disponibilidad
+ * @returns El libro actualizado o null en caso de error
+ */
+export const patchBookDisponible = async (id: number, disponible: boolean): Promise<Book | null> => {
+    try {
+        const res: AxiosResponse<Book> = await api.patch(`/libros/${id}`, { disponible });
+        return res.data;
+    } catch (err) {
+        return handleErrorService(err, null);
+    }
+};
+
+/**
  * Convierte el estado de filtros del listado (BookFiltersState) a parámetros de consulta (BookQueryParams).
  * Útil para usar con filterBooks o getBooks.
  */

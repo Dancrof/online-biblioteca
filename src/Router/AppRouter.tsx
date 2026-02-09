@@ -15,6 +15,7 @@ const BookLayout = React.lazy(() => import('../module/Layouts/BookLayout'))
 const BookDetail = React.lazy(() => import('../module/Books/BookDetailPage'))
 const UserLayout = React.lazy(() => import('../module/Layouts/UserLayout'))
 const RentListPage = React.lazy(() => import("../module/Rents/RentListPage"))
+const RentDetailPage = React.lazy(() => import("../module/Rents/RentDetailPage"))
 
 export const AppRouter = () => {
     return (
@@ -66,7 +67,12 @@ export const AppRouter = () => {
                             <RentListPage />
                         </Suspense>
 
-                    } />                  
+                    } />
+                    <Route path=":id" element={
+                        <Suspense fallback={<LoadingPage />}>
+                            <RentDetailPage />
+                        </Suspense>
+                    } />
                     <Route path="new" element={<CreateRent />} />
                     <Route path="*" element={<Navigate to="/rents" />} />
                 </Route>

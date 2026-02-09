@@ -1,5 +1,6 @@
 import "../Layouts/StylesLayouts/BookLayout.css";
 import type { BookFiltersState } from "../../interfaces/IBook";
+import { ANIO_MAX, ANIO_MIN } from "../../Config/constant";
 
 const CATEGORIAS = [
   "Novela",
@@ -18,8 +19,6 @@ const IDIOMAS = [
   { value: "Ruso", label: "Ruso" },
 ] as const;
 
-const ANIO_MIN = 1900;
-const ANIO_MAX = 2026;
 
 interface SidebarPageProps {
   filters: BookFiltersState;
@@ -39,6 +38,14 @@ export const SidebarPage = ({ filters, setFilters }: SidebarPageProps) => {
     setFilters((prev) => ({ ...prev, idioma: value }));
   };
 
+  const handleSearchText = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setFilters((prev) => ({
+      ...prev,
+      searchText: value || undefined,
+    }));
+  };
+
   const handleAnioMax = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value ? Number(e.target.value) : null;
     setFilters((prev) => ({ ...prev, anioMax: value }));
@@ -51,6 +58,20 @@ export const SidebarPage = ({ filters, setFilters }: SidebarPageProps) => {
   return (
     <aside className="layout__sidebar">
       <div className="layout__sidebar-content">
+        <div className="layout__sidebar-filter">
+          <label className="form-label" htmlFor="book-search">
+            Buscar (título, ISBN o autor)
+          </label>
+          <input
+            id="book-search"
+            type="text"
+            className="form-control form-control-sm"
+            placeholder="Escribe para filtrar..."
+            value={filters.searchText ?? ""}
+            onChange={handleSearchText}
+          />
+        </div>
+
         <h3 className="layout__sidebar-title">Categorías</h3>
         <ul className="layout__sidebar-list">
           {CATEGORIAS.map((cat) => (

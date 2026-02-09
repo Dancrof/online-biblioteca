@@ -14,3 +14,6 @@ export const api = axios.create({
 export const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export const ITEMS_PER_PAGE = 4;
+
+export const ANIO_MIN = 1900;
+export const ANIO_MAX = 2026;

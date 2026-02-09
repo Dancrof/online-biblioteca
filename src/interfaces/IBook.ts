@@ -22,6 +22,8 @@ export interface BookFiltersState {
   idioma: string | null;
   anioMax: number | null;
   soloDisponibles: boolean;
+  /** Texto libre para buscar por título, autor o ISBN */
+  searchText?: string;
 }
 
 export interface BookQueryParams {

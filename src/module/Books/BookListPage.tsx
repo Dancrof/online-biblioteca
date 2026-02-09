@@ -36,6 +36,11 @@ export default function BookListPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const { addToRentCart } = useRentCart();
 
+  const normalizedSearchText = useMemo(
+    () => filters.searchText?.trim().toLowerCase() ?? "",
+    [filters.searchText]
+  );
+
   const navigate = useNavigate();
 
   const loadFilteredBooks = useCallback(() => {
@@ -50,9 +55,22 @@ export default function BookListPage() {
     loadFilteredBooks();
   }, [loadFilteredBooks]);
 
+  const visibleBooks = useMemo(() => {
+    if (!normalizedSearchText) return allFilteredBooks;
+
+    return allFilteredBooks.filter((book) => {
+      const query = normalizedSearchText;
+      return (
+        book.titulo.toLowerCase().includes(query) ||
+        book.autor.toLowerCase().includes(query) ||
+        book.isbn.toLowerCase().includes(query)
+      );
+    });
+  }, [allFilteredBooks, normalizedSearchText]);
+
   const paginateBooks = useMemo(
-    () => buildPaginate(allFilteredBooks, currentPage, ITEMS_PER_PAGE),
-    [allFilteredBooks, currentPage]
+    () => buildPaginate(visibleBooks, currentPage, ITEMS_PER_PAGE),
+    [visibleBooks, currentPage]
   );
 
   const loadPage = useCallback((page: number) => {

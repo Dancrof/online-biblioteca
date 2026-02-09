@@ -3,6 +3,7 @@ import type { IPaginate } from "../interfaces/IPaginate";
 import type { IRent } from "../interfaces/IRent";
 import type { AxiosResponse } from "axios";
 import { handleErrorService } from "./Segurity/Errors";
+import { patchBookDisponible } from "./BookService";
 
 
 
@@ -76,7 +77,29 @@ export const getRents = async (paginaActual: number = 1, cantidadPorPagina: numb
 export const postRent = async (rent: Omit<IRent, 'id'>): Promise<IRent> => {
   try {
     const response: AxiosResponse<IRent> = await api.post('/alquileres', rent);
-    return response.data;
+    const createdRent = response.data;
+    // Marcar los libros alquilados como no disponibles
+    if (createdRent.librosIds?.length) {
+      const updateResults = await Promise.all(
+        createdRent.librosIds.map((bookId) => patchBookDisponible(bookId, false))
+      );
+      const anyFailed = updateResults.some((result) => result === null);
+      if (anyFailed) {
+        await deleteRent(createdRent.id, createdRent.librosIds);
+        return handleErrorService(
+          new Error('No se pudo actualizar la disponibilidad de uno o más libros. El alquiler ha sido cancelado.'),
+          {
+            id: 0,
+            usuarioId: 0,
+            librosIds: [],
+            fechaInicio: '',
+            fechaFin: '',
+            estado: false
+          }
+        );
+      }
+    }
+    return createdRent;
   } catch (error) {
     return handleErrorService(error, {
       id: 0,
@@ -91,14 +114,26 @@ export const postRent = async (rent: Omit<IRent, 'id'>): Promise<IRent> => {
 
 /**
  * Obtiene un alquiler por su ID
- * @param id - El ID del alquiler
+ * @param id - El ID del alquiler (número o string, p. ej. json-server puede usar "36d9")
  * @returns El alquiler
  */
-export const getRentById = async (id: number): Promise<IRent | null> => {
+export const getRentById = async (id: number | string): Promise<IRent | null> => {
   try {
     const response: AxiosResponse<IRent> = await api.get(`/alquileres/${id}`);
     return response.data;
   } catch (error) {
     return handleErrorService(error, null);
   }
+};
+
+/**
+ * Elimina un alquiler por su ID. Si se pasan librosIds, primero marca esos libros como disponibles.
+ * @param id - El ID del alquiler (número o string, p. ej. json-server puede usar "36d9")
+ * @param librosIds - IDs de los libros del alquiler; se marcarán como disponibles antes de eliminar
+ */
+export const deleteRent = async (id: number | string, librosIds?: number[]): Promise<void> => {
+  if (librosIds?.length) {
+    await Promise.all(librosIds.map((bookId) => patchBookDisponible(bookId, true)));
+  }
+  await api.delete(`/alquileres/${id}`);
 };
