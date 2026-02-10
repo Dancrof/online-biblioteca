@@ -18,29 +18,22 @@ export const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 /**
  * Items por página
  */
-export const ITEMS_PER_PAGE = 4;
+export const ITEMS_PER_PAGE = Number(import.meta.env.VITE_ITEMS_PER_PAGE);
 
 /**
  * Año mínimo
  */
-export const ANIO_MIN = 1900;
+export const ANIO_MIN = Number(import.meta.env.VITE_ANIO_MIN);
 
 /**
  * Año máximo
  */
-export const ANIO_MAX = 2026;
+export const ANIO_MAX = Number(import.meta.env.VITE_ANIO_MAX);
 
 /**
  * Categorías de libros
  */
-export const CATEGORIAS = [
-    "Novela",
-    "Distopia",
-    "Fabula",
-    "Romance",
-    "Fantasia",
-    "Misterio",
-  ] as const;
+export const CATEGORIAS = ["Novela", "Distopia", "Fabula", "Romance", "Fantasia", "Misterio"];
   
   /**
    * Idiomas de libros
@@ -51,4 +44,5 @@ export const CATEGORIAS = [
     { value: "Ingles", label: "Inglés" },
     { value: "Frances", label: "Francés" },
     { value: "Ruso", label: "Ruso" },
-  ] as const;
+    { value: "Indio", label: "Indio" }
+  ];
