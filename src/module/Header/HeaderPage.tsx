@@ -31,8 +31,12 @@ export const HeaderPage = () => {
                             <li className="layout__nav-item">
                                 <Link to="/rents" className="layout__nav-link">Alquileres</Link>
                             </li>
+
                         </ul>
                     </nav>
+                    <div className="layout__nav-item">
+                        <Link to="/admin" className="layout__nav-link">Admin</Link>
+                    </div>
                     <div className="layout__user">
                         <Link to="/auth" className="btn btn-outline-primary btn-sm">Login</Link>
                     </div>

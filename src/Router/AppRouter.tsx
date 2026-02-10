@@ -16,6 +16,9 @@ const BookDetail = React.lazy(() => import('../module/Books/BookDetailPage'))
 const UserLayout = React.lazy(() => import('../module/Layouts/UserLayout'))
 const RentListPage = React.lazy(() => import("../module/Rents/RentListPage"))
 const RentDetailPage = React.lazy(() => import("../module/Rents/RentDetailPage"))
+const AdminLayout = React.lazy(() => import('../module/Admin/AdminLayout'))
+const BooksAdminPage = React.lazy(() => import('../module/Admin/BooksAdminPage'))
+const RentsAdminPage = React.lazy(() => import('../module/Admin/RentsAdminPage'))
 
 export const AppRouter = () => {
     return (
@@ -75,6 +78,23 @@ export const AppRouter = () => {
                     } />
                     <Route path="new" element={<CreateRent />} />
                     <Route path="*" element={<Navigate to="/rents" />} />
+                </Route>
+                <Route path='/admin' element={
+                    <Suspense fallback={<LoadingPage />}>
+                        <AdminLayout />
+                    </Suspense>
+                }>
+                    <Route index element={<Navigate to="/admin/books" />} />
+                    <Route path='books' element={
+                        <Suspense fallback={<LoadingPage />}>
+                            <BooksAdminPage />
+                        </Suspense>
+                    } />
+                    <Route path='rents' element={
+                        <Suspense fallback={<LoadingPage />}>
+                            <RentsAdminPage />
+                        </Suspense>
+                    } />
                 </Route>
                 <Route path="/users/new" element={<CreateUser />} />
                 <Route path="/" element={<Navigate to="/books" />} />

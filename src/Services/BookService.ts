@@ -124,3 +124,46 @@ export function filtersToQueryParams(filters: BookFiltersState): BookQueryParams
     if (filters.soloDisponibles) params.disponible = true;
     return params;
 }
+
+/**
+ * Crea un nuevo libro.
+ * @param book - Datos del libro sin el id.
+ * @returns El libro creado.
+ */
+export const postBook = async (book: Omit<Book, "id">): Promise<Book | null> => {
+    try {
+        const res: AxiosResponse<Book> = await api.post("/libros", book);
+        return res.data;
+    } catch (error) {
+        return handleErrorService(error, null);
+    }
+};
+
+/**
+ * Actualiza un libro existente.
+ * @param id - ID del libro a actualizar.
+ * @param book - Datos del libro sin el id.
+ * @returns El libro actualizado o null si ocurre un error.
+ */
+export const putBook = async (id: number, book: Omit<Book, "id">): Promise<Book | null> => {
+    try {
+        const res: AxiosResponse<Book> = await api.put(`/libros/${id}`, book);
+        return res.data;
+    } catch (error) {
+        return handleErrorService(error, null);
+    }
+};
+
+/**
+ * Elimina un libro por su ID.
+ * @param id - ID del libro a eliminar.
+ */
+export const deleteBook = async (id: number): Promise<boolean> => {
+    try {
+        await api.delete(`/libros/${id}`);
+        return true;
+    } catch (error) {
+        handleErrorService(error, null);
+        return false;
+    }
+};
