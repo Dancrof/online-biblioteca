@@ -4,6 +4,7 @@ import type { IUser } from "../interfaces/IUser";
 import { handleErrorService, MSG_DUPLICATE_CEDULA, MSG_DUPLICATE_CORREO, validateUniqueCedulaAndCorreo } from "./Segurity/Errors";
 
 
+
 /**
  * Crea un usuario
  * @param user - El usuario a crear
@@ -34,6 +35,10 @@ export const postUser = async (user: Omit<IUser, "id">): Promise<IUser> => {
   }
 };
 
+/**
+ * Obtiene los usuarios
+ * @returns Los usuarios
+ */
 export const getUsers = async (): Promise<IUser[] | null> => {
   try {
     const response: AxiosResponse<IUser[]> = await api.get(`/usuarios`);

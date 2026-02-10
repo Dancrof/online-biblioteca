@@ -17,11 +17,19 @@ export const PaginationPage = ({ first, prev, next, last, pages, currentPage, on
     const hasPrev = prev !== null;
     const hasNext = next <= last;
 
+    /**
+     * Manejador para el clic en una página
+     * @param e - Evento de clic
+     * @param page - Número de página
+     */
     const handleClick = (e: React.MouseEvent, page: number) => {
         e.preventDefault();
         onPageChange(page);
     };
 
+    /**
+     * Números de páginas
+     */
     const pageNumbers = Array.from({ length: pages }, (_, i) => i + 1);
     const showPages = pages <= 7
         ? pageNumbers
@@ -31,6 +39,10 @@ export const PaginationPage = ({ first, prev, next, last, pages, currentPage, on
                 ? [1, '...', pages - 4, pages - 3, pages - 2, pages - 1, pages]
                 : [1, '...', current - 1, current, current + 1, '...', pages];
 
+    /**
+     * Renderizado del componente
+     * @returns Renderizado del componente
+     */
     return (
         <nav aria-label="Navegación de páginas">
             <ul className="pagination justify-content-center flex-wrap">

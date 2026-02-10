@@ -19,7 +19,7 @@ registerLocale('es', es);
 /**
  * Opciones de usuario
  */
-type UserOption = { id: number; nombreCompleo: string };
+type UserOption = { id: number; nombreCompleo: string, correo: string };
 
 /** Fecha actual en formato YYYY-MM-DD */
 function getTodayString(): string {
@@ -187,7 +187,7 @@ export const CreateRent = () => {
                       <option value={0}>-- Seleccionar --</option>
                       {users.map((u) => (
                         <option key={u.id} value={u.id}>
-                          {u.nombreCompleo} (ID {u.id})
+                          {u.nombreCompleo} - ({u.correo})
                         </option>
                       ))}
                     </select>

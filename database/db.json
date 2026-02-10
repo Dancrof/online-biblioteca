@@ -10,17 +10,6 @@
       "correo": "juanquintero@example.com",
       "contrasena": "password123",
       "estado": true
-    },
-    {
-      "id": "0",
-      "cedula": "0850054347",
-      "nombreCompleo": "Bryan Andres",
-      "apellidoCompleto": "Caicedo Jimenez",
-      "telefono": "0979979736",
-      "dirreccion": "Salinas y gustavo",
-      "correo": "bryan@gmail.com",
-      "contrasena": "$2b$10$RD2tjYDWXJuPl7gHaiJO..ZXOZboFBqMgrMGyXNRRjWPvBES0KCau",
-      "estado": true
     }
   ],
   "libros": [

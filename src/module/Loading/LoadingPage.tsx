@@ -11,10 +11,21 @@ const textColorClasses: string[] = [
     'dark'
 ];
 
+/**
+ * Componente de carga
+ * @returns Componente de carga
+ */
 export const LoadingPage = () => {
 
+    /**
+     * Colores de texto
+     */
     const [textColors] = useState<string[]>(textColorClasses);
 
+    /**
+     * Renderizado del componente
+     * @returns Renderizado del componente
+     */
     return (
 
         <main className="loading-page">

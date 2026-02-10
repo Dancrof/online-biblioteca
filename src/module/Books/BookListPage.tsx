@@ -10,9 +10,19 @@ import { ITEMS_PER_PAGE } from '../../Config/constant';
 import { useRentCart } from '../../context/RentCartContext';
 
 
-
+/**
+ * Contexto para el componente BookListPage
+ * @param filters - Filtros actuales
+ */
 type BookListOutletContext = { filters: BookFiltersState };
 
+/**
+ * Construye una paginación a partir de los libros
+ * @param allBooks - Libros totales
+ * @param currentPage - Página actual
+ * @param perPage - Libros por página
+ * @returns Paginación
+ */
 function buildPaginate(allBooks: Book[], currentPage: number, perPage: number): IPaginate<Book> {
   const items = allBooks.length;
   const pages = Math.max(1, Math.ceil(items / perPage));
@@ -30,19 +40,32 @@ function buildPaginate(allBooks: Book[], currentPage: number, perPage: number): 
   };
 }
 
+/**
+ * Componente BookListPage
+ * @returns Componente BookListPage
+ */
 export default function BookListPage() {
   const { filters } = useOutletContext<BookListOutletContext>();
   const [allFilteredBooks, setAllFilteredBooks] = useState<Book[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const { addToRentCart } = useRentCart();
 
+  /**
+   * Normaliza el texto de búsqueda
+   */
   const normalizedSearchText = useMemo(
     () => filters.searchText?.trim().toLowerCase() ?? "",
     [filters.searchText]
   );
 
+  /**
+   * Navegación
+   */
   const navigate = useNavigate();
 
+  /**
+   * Carga los libros filtrados
+   */
   const loadFilteredBooks = useCallback(() => {
     const queryParams = filtersToQueryParams(filters);
     filterBooks(queryParams).then((books) => {
@@ -51,10 +74,16 @@ export default function BookListPage() {
     });
   }, [filters]);
 
+  /**
+   * Efecto para cargar los libros filtrados
+   */
   useEffect(() => {
     loadFilteredBooks();
   }, [loadFilteredBooks]);
 
+  /**
+   * Libros visibles
+   */
   const visibleBooks = useMemo(() => {
     if (!normalizedSearchText) return allFilteredBooks;
 
@@ -68,15 +97,26 @@ export default function BookListPage() {
     });
   }, [allFilteredBooks, normalizedSearchText]);
 
+  /**
+   * Paginación de libros
+   */
   const paginateBooks = useMemo(
     () => buildPaginate(visibleBooks, currentPage, ITEMS_PER_PAGE),
     [visibleBooks, currentPage]
   );
 
+  /**
+   * Carga una página
+   * @param page - Número de página
+   */
   const loadPage = useCallback((page: number) => {
     setCurrentPage(page);
   }, []);
 
+  /**
+   * Renderizado del componente
+   * @returns Renderizado del componente
+   */
   return (
     <main className="book-list">
       <div className="container-lg py-5">
@@ -156,14 +196,14 @@ export default function BookListPage() {
           ))}
         </div>
         <div className='pt-5'>
-        <PaginationPage
-          first={paginateBooks.first}
-          prev={paginateBooks.prev}
-          next={paginateBooks.next}
-          last={paginateBooks.last}
-          pages={paginateBooks.pages}
-          onPageChange={loadPage}
-        />
+          <PaginationPage
+            first={paginateBooks.first}
+            prev={paginateBooks.prev}
+            next={paginateBooks.next}
+            last={paginateBooks.last}
+            pages={paginateBooks.pages}
+            onPageChange={loadPage}
+          />
         </div>
       </div>
     </main>

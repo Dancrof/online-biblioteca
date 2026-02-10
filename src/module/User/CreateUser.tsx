@@ -34,6 +34,9 @@ export const CreateUser = () => {
   const navigate = useNavigate();
   const [submitError, setSubmitError] = useState<string | null>(null);
 
+  /**
+   * Formulario de creación de usuario
+   */
   const {
     register,
     handleSubmit,

@@ -3,8 +3,16 @@ import '../Layouts/StylesLayouts/BookLayout.css'
 import { useRentCart } from '../../context/RentCartContext'
 
 export const HeaderPage = () => {
+    /**
+     * Componente HeaderPage
+     * @returns Componente HeaderPage
+     */
     const { count } = useRentCart()
 
+    /**
+     * Renderizado del componente
+     * @returns Renderizado del componente
+     */
     return (
         <header className="layout__header">
             <div className="container-fluid">

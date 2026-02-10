@@ -7,6 +7,11 @@ import type { IRent } from '../../interfaces/IRent';
 import { PaginationPage } from '../Pagination/PaginationPage';
 import type { IPaginate } from '../../interfaces/IPaginate';
 
+/**
+ * Formatea una fecha a un formato legible
+ * @param dateStr - La fecha a formatear
+ * @returns La fecha formateada
+ */
 const formatDate = (dateStr: string): string => {
   const d = new Date(dateStr);
   return d.toLocaleDateString('es-ES', {
@@ -16,6 +21,10 @@ const formatDate = (dateStr: string): string => {
   });
 };
 
+/**
+ * Componente RentListPage
+ * @returns Componente RentListPage
+ */
 export default function RentListPage() {
   const [paginateRents, setPaginateRents] = useState<IPaginate<IRent>>({
     data: [],
@@ -28,16 +37,26 @@ export default function RentListPage() {
   });
   const [userNames, setUserNames] = useState<Record<number, string>>({});
 
+  /**
+   * Carga una página de alquileres
+   * @param page - Número de página
+   */
   const loadPage = (page: number) => {
     getRents(page).then((data) => {
       setPaginateRents(data);
     });
   };
 
+  /**
+   * Efecto para cargar la primera página de alquileres
+   */
   useEffect(() => {
     loadPage(1);
   }, []);
 
+  /**
+   * Efecto para obtener los usuarios
+   */
   useEffect(() => {
     getUsers().then((users) => {
       if (!users) return;
@@ -50,6 +69,10 @@ export default function RentListPage() {
     });
   }, []);
 
+  /**
+   * Renderizado del componente
+   * @returns Renderizado del componente
+   */
     return (
     <main className="rent-list">
       <div className="container-lg py-5">

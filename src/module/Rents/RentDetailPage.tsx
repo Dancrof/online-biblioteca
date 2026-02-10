@@ -7,6 +7,11 @@ import type { IRent } from '../../interfaces/IRent';
 import type { Book } from '../../interfaces/IBook';
 import './Styles/RentPage.css';
 
+/**
+ * Formatea una fecha a un formato legible
+ * @param dateStr - La fecha a formatear
+ * @returns La fecha formateada
+ */
 const formatDate = (dateStr: string): string => {
   const d = new Date(dateStr);
   return d.toLocaleDateString('es-ES', {
@@ -16,6 +21,10 @@ const formatDate = (dateStr: string): string => {
   });
 };
 
+/**
+ * Componente RentDetailPage
+ * @returns Componente RentDetailPage
+ */
 export default function RentDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -26,6 +35,9 @@ export default function RentDetailPage() {
   const [notFound, setNotFound] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
+  /**
+   * Efecto para obtener el alquiler y los libros
+   */
   useEffect(() => {
     if (!id) {
       queueMicrotask(() => {
@@ -66,6 +78,9 @@ export default function RentDetailPage() {
       .finally(() => setLoading(false));
   }, [id]);
 
+  /**
+   * Manejador para eliminar el alquiler
+   */
   const handleDelete = () => {
     if (!rent) return;
     if (!window.confirm('¿Eliminar este alquiler? Esta acción no se puede deshacer.')) return;
@@ -78,6 +93,10 @@ export default function RentDetailPage() {
       });
   };
 
+  /**
+   * Renderizado del componente
+   * @returns Renderizado del componente
+   */
   if (loading) {
     return (
       <main className="rent-detail">

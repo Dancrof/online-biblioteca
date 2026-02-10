@@ -9,12 +9,18 @@ import { useRentCart } from '../../context/RentCartContext';
 
 export default function BookDetailPage() {
 
-
+  /**
+   * Componente BookDetailPage
+   * @returns Componente BookDetailPage
+   */
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const { addToRentCart } = useRentCart();
     const [bookData, setBookData] = useState<Book | null>(null);
 
+    /**
+     * Efecto para obtener el libro
+     */
     useEffect(() => {
         if (id) {
             const bookId = parseInt(id, 10);
@@ -23,6 +29,10 @@ export default function BookDetailPage() {
     }, [id]);
 
 
+  /**
+   * Renderizado del componente
+   * @returns Renderizado del componente
+   */
   return (
     <main className="book-detail">
       <div className="book-detail__container">

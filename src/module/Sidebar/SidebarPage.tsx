@@ -1,30 +1,25 @@
 import "../Layouts/StylesLayouts/BookLayout.css";
 import type { BookFiltersState } from "../../interfaces/IBook";
-import { ANIO_MAX, ANIO_MIN } from "../../Config/constant";
-
-const CATEGORIAS = [
-  "Novela",
-  "Distopia",
-  "Fabula",
-  "Romance",
-  "Fantasia",
-  "Misterio",
-] as const;
-
-const IDIOMAS = [
-  { value: "", label: "Todos" },
-  { value: "Espanol", label: "Español" },
-  { value: "Ingles", label: "Inglés" },
-  { value: "Frances", label: "Francés" },
-  { value: "Ruso", label: "Ruso" },
-] as const;
+import { ANIO_MAX, ANIO_MIN, CATEGORIAS, IDIOMAS  } from "../../Config/constant";
 
 
+
+/**
+ * Props para el componente SidebarPage
+ * @param filters - Filtros actuales
+ * @param setFilters - Función para actualizar los filtros
+ */
 interface SidebarPageProps {
   filters: BookFiltersState;
   setFilters: React.Dispatch<React.SetStateAction<BookFiltersState>>;
 }
 
+/**
+ * Componente SidebarPage
+ * @param filters - Filtros actuales
+ * @param setFilters - Función para actualizar los filtros
+ * @returns Componente SidebarPage
+ */
 export const SidebarPage = ({ filters, setFilters }: SidebarPageProps) => {
   const handleCategoria = (categoria: string) => {
     setFilters((prev) => ({
@@ -32,12 +27,19 @@ export const SidebarPage = ({ filters, setFilters }: SidebarPageProps) => {
       categoria: prev.categoria === categoria ? null : categoria,
     }));
   };
-
+/**
+ * Manejador para el cambio de idioma
+ * @param e - Evento de cambio de idioma
+ */
   const handleIdioma = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value || null;
     setFilters((prev) => ({ ...prev, idioma: value }));
   };
 
+  /**
+   * Manejador para el cambio de texto de búsqueda
+   * @param e - Evento de cambio de texto de búsqueda
+   */
   const handleSearchText = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setFilters((prev) => ({
@@ -46,11 +48,19 @@ export const SidebarPage = ({ filters, setFilters }: SidebarPageProps) => {
     }));
   };
 
+  /**
+   * Manejador para el cambio de año máximo
+   * @param e - Evento de cambio de año máximo
+   */
   const handleAnioMax = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value ? Number(e.target.value) : null;
     setFilters((prev) => ({ ...prev, anioMax: value }));
   };
 
+  /**
+   * Manejador para el cambio de solo disponibles
+   * @param e - Evento de cambio de solo disponibles
+   */
   const handleSoloDisponibles = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFilters((prev) => ({ ...prev, soloDisponibles: e.target.checked }));
   };

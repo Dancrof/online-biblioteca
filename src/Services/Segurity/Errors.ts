@@ -1,15 +1,25 @@
 import { api } from "../../Config/constant";
 import type { IUser } from "../../interfaces/IUser";
 
+/**
+ * Maneja un error
+ * @param err - El error
+ * @param fallback - El valor por defecto
+ * @returns El valor por defecto
+ */
 export const handleErrorService = <T>(err: unknown, fallback: T): T => {       
     console.error("Error en Service:", err);
     return fallback;
   };    
 
-/** Mensaje cuando la cédula ya está registrada */
+/**
+ * Mensaje cuando la cédula ya está registrada
+ */
 export const MSG_DUPLICATE_CEDULA = "Ya existe un usuario con esta cédula.";
 
-/** Mensaje cuando el correo ya está registrado */
+/**
+ * Mensaje cuando el correo ya está registrado
+ */
 export const MSG_DUPLICATE_CORREO = "Ya existe un usuario con este correo electrónico.";
 
 /**
