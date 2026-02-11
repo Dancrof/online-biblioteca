@@ -10,7 +10,7 @@
       "correo": "juanquintero@example.com",
       "contrasena": "password123",
       "estado": true,
-      "rol": "admin"
+      "rol": "user"
     },
     {
       "id": "2",
@@ -22,7 +22,7 @@
       "correo": "melody@gmail.com",
       "contrasena": "$2b$10$H0ee9HqFJScClndfDcmZB.25M5bROzV/cy1S1Lm1M5f5oN2w.WWtS",
       "estado": true,
-      "rol": "user"
+      "rol": "admin"
     }
   ],
   "libros": [

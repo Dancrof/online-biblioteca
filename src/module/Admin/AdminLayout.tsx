@@ -1,3 +1,4 @@
+
 import { Outlet, NavLink } from 'react-router';
 import { HeaderPage } from '../Header/HeaderPage';
 import { FooterPage } from '../Footer/FooterPage';
