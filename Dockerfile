@@ -1,5 +1,6 @@
 # Etapa 1: Build de la aplicación React
-FROM node:20-alpine AS builder
+# Usamos Node 22 para ser compatibles con json-server y lowdb
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 

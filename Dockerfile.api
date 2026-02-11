@@ -1,5 +1,6 @@
-# API con json-server (database/db.json)
-FROM node:20-alpine
+# API con json-server + Express (database/db.json)
+# Node 22 para ser compatible con json-server 1.x y lowdb
+FROM node:22-alpine
 
 WORKDIR /app
 
@@ -12,6 +13,11 @@ RUN npm ci --omit=dev
 # Copiar código necesario para la API (base de datos y servidor)
 COPY database ./database
 COPY api ./api
+
+# Variables de entorno por defecto (puedes sobreescribirlas en docker-compose)
+ENV NODE_ENV=production \
+    JWT_SECRET=dev_secret_change_me \
+    PORT=4000
 
 EXPOSE 4000
 

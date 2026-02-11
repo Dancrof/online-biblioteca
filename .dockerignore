@@ -2,7 +2,7 @@ node_modules
 dist
 .git
 .gitignore
-.env
+# Mantener fuera otros entornos, pero permitir copiar `.env`
 .env.*
 !.env.example
 *.md

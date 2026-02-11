@@ -4,6 +4,11 @@ services:
       context: .
       dockerfile: Dockerfile.api
     container_name: online-biblioteca-api
+    environment:
+      - NODE_ENV=production
+      # Cambia este valor en producción
+      - JWT_SECRET=super_secret_jwt_key
+      - PORT=4000
     ports:
       - "4000:4000"
     volumes:
@@ -16,7 +21,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        # URL que usará el navegador para llamar a la API (mismo host que el usuario)
+        # URL que usará el navegador para llamar a la API desde el host
         VITE_URL_API: http://localhost:4000
     container_name: online-biblioteca-web
     ports:
