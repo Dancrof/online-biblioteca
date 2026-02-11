@@ -9,17 +9,12 @@ import { filterBooks } from '../../Services/BookService';
 import { postRent } from '../../Services/RentService';
 import type { IRent } from '../../interfaces/IRent';
 import type { Book } from '../../interfaces/IBook';
-import { api } from '../../Config/constant';
 import './Styles/CreateRent.css';
 import { Link } from 'react-router';
 import { useRentCart } from '../../context/RentCartContext';
+import { useAuth } from '../../context/AuthContext';
 
 registerLocale('es', es);
-
-/**
- * Opciones de usuario
- */
-type UserOption = { id: number; nombreCompleo: string, correo: string };
 
 /** Fecha actual en formato YYYY-MM-DD */
 function getTodayString(): string {
@@ -55,7 +50,7 @@ export const CreateRent = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { bookIds: rentCartIds, addToRentCart, removeFromRentCart, clearRentCart } = useRentCart();
-  const [users, setUsers] = useState<UserOption[]>([]);
+  const { user: authUser } = useAuth();
   const [books, setBooks] = useState<Book[]>([]);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -77,10 +72,9 @@ export const CreateRent = () => {
   const todayStr = useMemo(() => getTodayString(), []);
 
   /**
-   * Efecto para obtener los usuarios y libros
+   * Efecto para obtener los libros
    */
   useEffect(() => {
-    api.get<UserOption[]>('/usuarios').then((res) => setUsers(res.data)).catch(() => setUsers([]));
     filterBooks({}).then(setBooks).catch(() => setBooks([]));
   }, []);
 
@@ -94,11 +88,14 @@ export const CreateRent = () => {
   }, [location.state, addToRentCart]);
 
   /**
-   * Sincronizar formulario con el carrito global (una sola fuente de verdad)
+   * Sincronizar formulario con el carrito global y establecer usuarioId automáticamente
    */
   useEffect(() => {
     setValue('librosIds', rentCartIds);
-  }, [rentCartIds, setValue]);
+    if (authUser?.id) {
+      setValue('usuarioId', Number(authUser.id));
+    }
+  }, [rentCartIds, authUser?.id, setValue]);
 
   /**
    * Manejador del formulario de creación de alquiler
@@ -106,13 +103,18 @@ export const CreateRent = () => {
    */
   const onSubmit = async (data: IRent) => {
     setSubmitError(null);
+    if (!authUser?.id) {
+      setSubmitError('Debes estar autenticado para crear un alquiler.');
+      return;
+    }
     if (!data.librosIds?.length) {
       setError('librosIds', { message: 'Selecciona al menos un libro' });
       return;
     }
     const payload = {
       // omit id, let backend generate
-      usuarioId: Number(data.usuarioId),
+      // usuarioId será forzado por el backend al del token
+      usuarioId: Number(authUser.id),
       librosIds: data.librosIds.map(Number),
       fechaInicio: (data.fechaInicio || getTodayString()).slice(0, 10),
       fechaFin: (data.fechaFin || '').slice(0, 10),
@@ -168,36 +170,23 @@ export const CreateRent = () => {
 
         <form onSubmit={handleSubmit(onSubmit)} className="create-rent__form">
           <div className="row g-4">
-            {/* Usuario */}
+            {/* Usuario (solo lectura, automático) */}
             <div className="col-12 col-md-6">
               <div className="card h-100 shadow-sm">
                 <div className="card-body">
                   <label className="form-label fw-semibold">
-                    Seleccionar usuario
+                    <i className="bi bi-person-fill text-primary me-2" />
+                    Usuario
                   </label>
-                  <div className="d-flex align-items-center gap-2">
-                    <select
-                      className={`form-select flex-grow-1 ${errors.usuarioId ? 'is-invalid' : ''}`}
-                      {...register('usuarioId', {
-                        required: 'Selecciona un usuario',
-                        valueAsNumber: true,
-                        validate: (v) => (v > 0 ? true : 'Selecciona un usuario'),
-                      })}
-                    >
-                      <option value={0}>-- Seleccionar --</option>
-                      {users.map((u) => (
-                        <option key={u.id} value={u.id}>
-                          {u.nombreCompleo} - ({u.correo})
-                        </option>
-                      ))}
-                    </select>
-                    <Link to="/users/new" className="btn btn-outline-primary btn-sm p-2" title="Nuevo usuario" aria-label="Nuevo usuario">
-                      <i className="bi bi-person-plus" />
-                    </Link>
-                  </div>
-                  {errors.usuarioId && (
-                    <div className="invalid-feedback d-block">{errors.usuarioId.message}</div>
-                  )}
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={authUser ? `${authUser.nombreCompleo} ${authUser.apellidoCompleto}`.trim() : 'No autenticado'}
+                    readOnly
+                    disabled
+                  />
+                  <small className="text-muted">El alquiler se creará automáticamente para tu usuario.</small>
+                  <input type="hidden" {...register('usuarioId', { valueAsNumber: true })} />
                 </div>
               </div>
             </div>

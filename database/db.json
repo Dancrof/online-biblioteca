@@ -50,7 +50,7 @@
       "portada": "https://covers.openlibrary.org/b/id/7222246-L.jpg",
       "sinopsis": "Un mundo vigilado por el Gran Hermano.",
       "criticas": "Impactante y vigente.",
-      "disponible": false
+      "disponible": true
     },
     {
       "id": "3",
@@ -677,16 +677,5 @@
       "disponible": true
     }
   ],
-  "alquileres": [
-    {
-      "id": "22f8",
-      "usuarioId": 1,
-      "librosIds": [
-        2
-      ],
-      "fechaInicio": "2026-02-10",
-      "fechaFin": "2026-02-15",
-      "estado": true
-    }
-  ]
+  "alquileres": []
 }

@@ -276,6 +276,56 @@ app.patch("/usuarios/:id", requireAuthForProfile, requireOwnUser, async (req, re
   }
 });
 
+/**
+ * Middleware opcional: si hay token válido, establece req.user.
+ * Útil para rutas que pueden funcionar con o sin autenticación.
+ */
+function optionalAuth(req, res, next) {
+  const authHeader = req.headers.authorization || "";
+  const token = authHeader.startsWith("Bearer ") ? authHeader.substring(7) : null;
+  if (token) {
+    try {
+      req.user = jwt.verify(token, JWT_SECRET);
+    } catch {
+      // Token inválido, pero continuamos sin req.user
+    }
+  }
+  next();
+}
+
+/** GET /alquileres — solo del usuario logueado si hay token */
+app.get("/alquileres", optionalAuth, (req, res) => {
+  const query = { ...req.query };
+  if (req.user?.id) {
+    // Filtrar por usuarioId del token (comparar como número)
+    const userId = Number(req.user.id);
+    const alquileres = db.data.alquileres || [];
+    const filtered = alquileres.filter((a) => Number(a.usuarioId) === userId);
+    // Aplicar paginación y otros filtros del query si existen
+    const page = query._page ? Number(query._page) : 1;
+    const limit = query._limit ? Number(query._limit) : filtered.length;
+    const start = (page - 1) * limit;
+    const end = start + limit;
+    const paginated = filtered.slice(start, end);
+    // Devolver con headers de paginación
+    res.set("X-Total-Count", String(filtered.length));
+    return res.json(paginated);
+  }
+  // Sin token: usar el servicio normal (pero esto no debería pasar si RequireAuth está activo)
+  const data = service.find("alquileres", query);
+  res.json(data);
+});
+
+/** POST /alquileres — fuerza usuarioId del token */
+app.post("/alquileres", requireAuthForProfile, async (req, res) => {
+  if (!isItem(req.body)) return res.status(400).json({});
+  const body = { ...req.body };
+  body.usuarioId = Number(req.user.id);
+  const data = await service.create("alquileres", body);
+  if (data === undefined) return res.status(404).json({});
+  res.status(201).json(data);
+});
+
 // API REST (libros, usuarios, alquileres) usando el Service de json-server
 function apiMiddleware(req, res, next) {
   const name = req.params.name;
