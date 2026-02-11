@@ -46,4 +46,43 @@ export const getUsers = async (): Promise<IUser[] | null> => {
   } catch (error) {
     return handleErrorService(error, null);
   }
-}
+};
+
+/**
+ * Obtiene un usuario por id (solo el propio usuario autenticado).
+ */
+export const getUsuarioById = async (id: number | string): Promise<IUser | null> => {
+  try {
+    const response = await api.get<IUser>(`/usuarios/${id}`);
+    return response.data;
+  } catch {
+    return null;
+  }
+};
+
+/**
+ * Campos permitidos para actualizar el perfil del usuario.
+ */
+export type ProfileUpdatePayload = Partial<Pick<
+  IUser,
+  "nombreCompleo" | "apellidoCompleto" | "telefono" | "dirreccion" | "correo"
+>> & { contrasena?: string };
+
+/**
+ * Actualiza el perfil del usuario (solo el propio usuario autenticado).
+ */
+export const patchUsuario = async (
+  id: number | string,
+  payload: ProfileUpdatePayload
+): Promise<IUser | null> => {
+  try {
+    const response = await api.patch<IUser>(`/usuarios/${id}`, payload);
+    return response.data;
+  } catch (error) {
+    if (error && typeof error === "object" && "response" in error) {
+      const ax = error as { response?: { data?: { message?: string } } };
+      if (ax.response?.data?.message) throw new Error(ax.response.data.message);
+    }
+    throw error;
+  }
+};

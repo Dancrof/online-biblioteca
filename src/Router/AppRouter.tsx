@@ -1,6 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router'
 import BookListPage from '../module/Books/BookListPage'
-import { Suspense } from 'react'
+import { Suspense, type JSX } from 'react'
 import React from 'react'
 import { LoadingPage } from '../module/Loading/LoadingPage'
 import { AuthLayout } from '../module/Layouts/AuthLayout'
@@ -9,7 +9,9 @@ import { LoginPage } from '../module/Auth/LoginPage'
 import { CreateRent } from '../module/Rents/CreateRent'
 import { RentLayout } from '../module/Layouts/RentLayout'
 import { CreateUser } from '../module/User/CreateUser'
+import { ProfilePage } from '../module/User/ProfilePage'
 import { RentCartProvider } from '../context/RentCartContext'
+import { AuthProvider, useAuth } from '../context/AuthContext'
 
 const BookLayout = React.lazy(() => import('../module/Layouts/BookLayout'))
 const BookDetail = React.lazy(() => import('../module/Books/BookDetailPage'))
@@ -20,9 +22,31 @@ const AdminLayout = React.lazy(() => import('../module/Admin/AdminLayout'))
 const BooksAdminPage = React.lazy(() => import('../module/Admin/BooksAdminPage'))
 const RentsAdminPage = React.lazy(() => import('../module/Admin/RentsAdminPage'))
 
+const RequireAuth = ({ children }: { children: JSX.Element }) => {
+    const { isAuthenticated } = useAuth();
+    if (!isAuthenticated) {
+        return <Navigate to="/auth" replace />;
+    }
+    return children;
+};
+
+const ROLE_ADMIN = 'admin';
+
+const RequireAdmin = ({ children }: { children: JSX.Element }) => {
+    const { isAuthenticated, user } = useAuth();
+    if (!isAuthenticated) {
+        return <Navigate to="/auth" replace />;
+    }
+    if (user?.rol !== ROLE_ADMIN) {
+        return <Navigate to="/books" replace />;
+    }
+    return children;
+};
+
 export const AppRouter = () => {
     return (
         <BrowserRouter>
+            <AuthProvider>
             <RentCartProvider>
             <Routes>
                 <Route path='/auth' element={
@@ -36,11 +60,23 @@ export const AppRouter = () => {
                 </Route>
                 <Route path='/users' element={
                     <Suspense fallback={<LoadingPage />}>
-                        <UserLayout />
+                        <RequireAuth>
+                            <UserLayout />
+                        </RequireAuth>
                     </Suspense>
                 } >
                     <Route path="new" element={<CreateUser />} />
                     <Route path="*" element={<Navigate to="/users" />} />
+                </Route>
+                <Route path='/profile' element={
+                    <Suspense fallback={<LoadingPage />}>
+                        <RequireAuth>
+                            <UserLayout />
+                        </RequireAuth>
+                    </Suspense>
+                }>
+                    <Route index element={<ProfilePage />} />
+                    <Route path="*" element={<Navigate to="/profile" replace />} />
                 </Route>
                 <Route path="/books" element={
                     <Suspense fallback={<LoadingPage />}>
@@ -62,7 +98,9 @@ export const AppRouter = () => {
                 </Route>
                 <Route path='/rents' element={
                     <Suspense fallback={<LoadingPage />}>
-                        <RentLayout />
+                        <RequireAuth>
+                            <RentLayout />
+                        </RequireAuth>
                     </Suspense>
                 } >
                    <Route index element={
@@ -81,7 +119,9 @@ export const AppRouter = () => {
                 </Route>
                 <Route path='/admin' element={
                     <Suspense fallback={<LoadingPage />}>
-                        <AdminLayout />
+                        <RequireAdmin>
+                            <AdminLayout />
+                        </RequireAdmin>
                     </Suspense>
                 }>
                     <Route index element={<Navigate to="/admin/books" />} />
@@ -101,6 +141,7 @@ export const AppRouter = () => {
                 <Route path="*" element={<Navigate to="/books" />} />
             </Routes>
             </RentCartProvider>
+            </AuthProvider>
         </BrowserRouter>
     )
 }

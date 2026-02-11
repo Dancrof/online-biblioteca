@@ -4,10 +4,34 @@ import axios from "axios";
  * API de la aplicación
  */
 export const api = axios.create({
-    baseURL: import.meta.env.VITE_URL_API,
-    headers: {
-        "Content-Type": "application/json",
-    },
+  baseURL: import.meta.env.VITE_URL_API,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+/**
+ * Clave de almacenamiento del token
+ */
+const AUTH_STORAGE_KEY = "online-biblioteca-auth";
+
+/**
+ * Interceptor para enviar automáticamente el token JWT si existe
+ */
+api.interceptors.request.use((config) => {
+  try {
+    const raw = localStorage.getItem(AUTH_STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw) as { token?: string };
+      if (parsed.token) {
+        config.headers = config.headers ?? {};
+        config.headers.Authorization = `Bearer ${parsed.token}`;
+      }
+    }
+  } catch {
+    // ignorar errores de lectura
+  }
+  return config;
 });
 
 /**

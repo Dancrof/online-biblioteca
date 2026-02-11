@@ -1,13 +1,29 @@
 import { useState } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
+import { useAuth } from "../../context/AuthContext";
 
 export const LoginPage = () => {
+  const navigate = useNavigate();
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log({ email, password });
+    setError(null);
+    setSubmitting(true);
+    try {
+      await login({ correo: email.trim().toLowerCase(), contrasena: password });
+      navigate("/books", { replace: true });
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Error al iniciar sesión. Intenta de nuevo.";
+      setError(message);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -68,9 +84,16 @@ export const LoginPage = () => {
             </div>
 
             {/* Button */}
-            <button type="submit" className="btn btn-primary w-100 py-2">
-              Entrar
+            <button type="submit" className="btn btn-primary w-100 py-2" disabled={submitting}>
+              {submitting ? "Entrando..." : "Entrar"}
             </button>
+
+            {error && (
+              <div className="alert alert-danger mt-3 py-2" role="alert">
+                <i className="bi bi-exclamation-triangle-fill me-2" />
+                {error}
+              </div>
+            )}
           </form>
 
           <hr className="my-4" />

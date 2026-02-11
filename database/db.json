@@ -9,7 +9,20 @@
       "dirreccion": "Sucre y Maldonado",
       "correo": "juanquintero@example.com",
       "contrasena": "password123",
-      "estado": true
+      "estado": true,
+      "rol": "admin"
+    },
+    {
+      "id": "2",
+      "cedula": "0123456789",
+      "nombreCompleo": "melody",
+      "apellidoCompleto": "caicedo",
+      "telefono": "0999999999",
+      "dirreccion": "Salinas y gustavo becerra",
+      "correo": "melody@gmail.com",
+      "contrasena": "$2b$10$H0ee9HqFJScClndfDcmZB.25M5bROzV/cy1S1Lm1M5f5oN2w.WWtS",
+      "estado": true,
+      "rol": "user"
     }
   ],
   "libros": [
