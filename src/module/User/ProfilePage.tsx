@@ -25,6 +25,7 @@ export const ProfilePage = () => {
   const nuevaContrasena = watch("nuevaContrasena");
   const canSubmit = isDirty || (nuevaContrasena != null && String(nuevaContrasena).trim().length > 0);
 
+  /* Carga el perfil del usuario al montar el componente */
   useEffect(() => {
     if (!authUser?.id) {
       navigate("/auth", { replace: true });
@@ -52,6 +53,9 @@ export const ProfilePage = () => {
     };
   }, [authUser?.id, navigate, reset]);
 
+  /** Maneja el envío del formulario de actualización de perfil
+   * @param data Datos del formulario
+   */
   const onSubmit = async (data: ProfileForm) => {
     setSubmitError(null);
     if (!authUser?.id) return;

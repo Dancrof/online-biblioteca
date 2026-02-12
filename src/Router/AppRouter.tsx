@@ -12,6 +12,7 @@ import { CreateUser } from '../module/User/CreateUser'
 import { ProfilePage } from '../module/User/ProfilePage'
 import { RentCartProvider } from '../context/RentCartContext'
 import { AuthProvider, useAuth } from '../context/AuthContext'
+import { ROLE_ADMIN } from '../Config/constant'
 
 const BookLayout = React.lazy(() => import('../module/Layouts/BookLayout'))
 const BookDetail = React.lazy(() => import('../module/Books/BookDetailPage'))
@@ -23,6 +24,7 @@ const BooksAdminPage = React.lazy(() => import('../module/Admin/BooksAdminPage')
 const RentsAdminPage = React.lazy(() => import('../module/Admin/RentsAdminPage'))
 const UsersAdminPage = React.lazy(() => import('../module/Admin/UsersAdminPage'))
 
+/* Componente de enrutamiento principal de la aplicación */
 const RequireAuth = ({ children }: { children: JSX.Element }) => {
     const { isAuthenticated } = useAuth();
     if (!isAuthenticated) {
@@ -31,6 +33,7 @@ const RequireAuth = ({ children }: { children: JSX.Element }) => {
     return children;
 };
 
+/** Componente que redirige a /books si el usuario ya está autenticado */
 const RedirectIfAuthenticated = ({ children }: { children: JSX.Element }) => {
     const { isAuthenticated } = useAuth();
     if (isAuthenticated) {
@@ -39,8 +42,8 @@ const RedirectIfAuthenticated = ({ children }: { children: JSX.Element }) => {
     return children;
 };
 
-const ROLE_ADMIN = 'admin';
 
+/* Componente que protege rutas exclusivas para administradores */
 const RequireAdmin = ({ children }: { children: JSX.Element }) => {
     const { isAuthenticated, user } = useAuth();
     if (!isAuthenticated) {

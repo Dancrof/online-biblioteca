@@ -81,10 +81,7 @@ api.get('/libros') // Ejemplo de uso
 - **Descripción**: Preset de carga sin autenticar para Cloudinary
 - **Valor**: Se configura desde `VITE_CLOUDINARY_UPLOAD_PRESET` (actual: `librosImages`)
 
-#### `ROLE_ADMIN`
-- **Tipo**: `string`
-- **Valor**: `"admin"`
-- **Descripción**: Constante para identificar el rol de administrador
+**Nota**: `ROLE_ADMIN` ahora se define directamente en `AppRouter.tsx` con el valor `"admin"` para evitar importaciones circulares
 
 ---
 
@@ -590,6 +587,21 @@ export interface IPaginate<T> {
 - **Formato**: `{user: AuthUser, token: string}`
 - **Persistencia**: Se guarda/carga automáticamente en localStorage
 
+#### Componentes de Protección de Rutas
+
+**`RequireAuth`**
+- Protege rutas que requieren autenticación
+- Redirige a `/auth` si no está autenticado
+
+**`RedirectIfAuthenticated`**
+- Redirige usuarios ya autenticados a `/books`
+- Previene que usuarios logueados vean la pantalla de login
+
+**`RequireAdmin`**
+- Protege rutas exclusivas para administradores
+- Requiere token Y rol "admin"
+- Redirige a `/books` si no cumple los requisitos
+
 ---
 
 ### RentCartContext.tsx
@@ -736,6 +748,8 @@ export interface IPaginate<T> {
 5. En logout, se limpia localStorage
 
 ### Protección de Rutas
+
+Todos estos componentes se encuentran en [AppRouter.tsx](src/Router/AppRouter.tsx):
 
 - **`RequireAuth`**: Redirige a `/auth` si no está autenticado
 - **`RequireAdmin`**: Redirige a `/books` si no es admin

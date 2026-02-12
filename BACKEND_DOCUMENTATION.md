@@ -102,11 +102,11 @@ const JWT_EXPIRES_IN = "2h";
 #### Roles Disponibles
 
 ```javascript
-const ROLE_ADMIN = "admin";
-const ROLE_USER = "user";
+const ROLE_ADMIN = "admin";   // Valor: "admin"
+const ROLE_USER = "user";     // Valor: "user"
 ```
 
-- **`ROLE_USER`** (por defecto)
+- **`ROLE_USER`** (por defecto, asignado en registro)
   - Puede ver/editar su propio perfil
   - Puede crear y gestionar sus alquileres
   - **No puede**: acceder a datos de otros usuarios

@@ -15,7 +15,11 @@ export const RegisterPage = () => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  /**
+   * Maneja el envío del formulario de registro
+   * @param e Evento de envío del formulario
+   */
+  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
 

@@ -76,4 +76,6 @@ export const CATEGORIAS = ["Novela", "Distopia", "Fabula", "Romance", "Fantasia"
  */
 export const CLOUDINARY_CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
 export const CLOUDINARY_UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+
+/* Rol de administrador */
 export const ROLE_ADMIN = 'admin'

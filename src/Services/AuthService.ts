@@ -23,11 +23,21 @@ export interface RegisterPayload {
   contrasena: string;
 }
 
+/**
+ * Realiza el login de un usuario
+ * @param payload Datos de login
+ * @returns Respuesta de autenticación con token y datos del usuario
+ */
 export const login = async (payload: LoginPayload): Promise<AuthResponse> => {
   const { data } = await api.post<AuthResponse>("/auth/login", payload);
   return data;
 };
 
+/**
+  *Realiza el registro de un nuevo usuario
+ * @param payload Datos de registro
+ * @returns Respuesta de autenticación con token y datos del usuario registrado
+ */
 export const register = async (payload: RegisterPayload): Promise<AuthResponse> => {
   const { data } = await api.post<AuthResponse>("/auth/register", payload);
   return data;

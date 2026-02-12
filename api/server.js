@@ -77,6 +77,11 @@ function authMiddleware(req, res, next) {
   next();
 }
 
+ /**
+ * Rutas de autenticación: registro, login y perfil.
+ * Registro y login devuelven token + usuario (sin contraseña).
+ * Perfil GET/PATCH solo para el propio usuario (requiere token).
+ */
 app.post("/auth/register", async (req, res) => {
   try {
     const {
@@ -142,6 +147,9 @@ app.post("/auth/register", async (req, res) => {
   }
 });
 
+/**
+ * Login: verifica credenciales y devuelve token + usuario (sin contraseña).
+ */
 app.post("/auth/login", async (req, res) => {
   try {
     const { correo, contrasena } = req.body || {};
@@ -180,6 +188,10 @@ app.post("/auth/login", async (req, res) => {
   }
 });
 
+/**
+ * GET /auth/me: devuelve datos del usuario logueado (sin contraseña).
+ * Requiere token en Authorization header. Útil para validar token y mostrar perfil.
+ */
 app.get("/auth/me", (req, res) => {
   const authHeader = req.headers.authorization || "";
   const token = authHeader.startsWith("Bearer ") ? authHeader.substring(7) : null;
@@ -215,6 +227,10 @@ function requireAuthForProfile(req, res, next) {
   }
 }
 
+/**
+ * Middleware: solo permite acceso si el ID del token coincide con el ID del recurso.
+ * Usar después de requireAuthForProfile en rutas como GET/PATCH /usuarios/:id.
+ */
 function requireOwnUser(req, res, next) {
   if (String(req.user?.id) !== String(req.params.id)) {
     return res.status(403).json({ message: "No autorizado para este recurso" });
@@ -335,17 +351,20 @@ function apiMiddleware(req, res, next) {
   next();
 }
 
+/** Rutas REST genéricas para libros, usuarios y alquileres */
 app.get("/:name", apiMiddleware, (req, res) => {
   const data = service.find(req.params.name, req.query);
   res.json(data);
 });
 
+/** GET /:name/:id — devuelve 404 si no existe */
 app.get("/:name/:id", apiMiddleware, (req, res) => {
   const data = service.findById(req.params.name, req.params.id, req.query);
   if (data === undefined) return res.status(404).json({});
   res.json(data);
 });
 
+/** POST /:name — crea nuevo item; devuelve 404 si la colección no existe */
 app.post("/:name", apiMiddleware, async (req, res) => {
   if (!isItem(req.body)) return res.status(400).json({});
   const data = await service.create(req.params.name, req.body);
@@ -353,6 +372,7 @@ app.post("/:name", apiMiddleware, async (req, res) => {
   res.status(201).json(data);
 });
 
+/** PUT /:name/:id — actualiza item completo; devuelve 404 si no existe */
 app.put("/:name/:id", apiMiddleware, async (req, res) => {
   if (!isItem(req.body)) return res.status(400).json({});
   const data = await service.updateById(req.params.name, req.params.id, req.body);
@@ -360,6 +380,7 @@ app.put("/:name/:id", apiMiddleware, async (req, res) => {
   res.json(data);
 });
 
+/** PATCH /:name/:id — actualiza item parcialmente; devuelve 404 si no existe */
 app.patch("/:name/:id", apiMiddleware, async (req, res) => {
   if (!isItem(req.body)) return res.status(400).json({});
   const data = await service.patchById(req.params.name, req.params.id, req.body);
@@ -367,6 +388,7 @@ app.patch("/:name/:id", apiMiddleware, async (req, res) => {
   res.json(data);
 });
 
+/** DELETE /:name/:id — elimina item; devuelve 404 si no existe */
 app.delete("/:name/:id", apiMiddleware, async (req, res) => {
   const dependent = req.query._dependent;
   const data = await service.destroyById(req.params.name, req.params.id, dependent);
@@ -374,6 +396,7 @@ app.delete("/:name/:id", apiMiddleware, async (req, res) => {
   res.json(data);
 });
 
+/** Inicia el servidor en el puerto especificado */
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console
   console.log(`API con JWT escuchando en http://localhost:${PORT}`);
