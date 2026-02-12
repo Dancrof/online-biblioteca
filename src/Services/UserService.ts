@@ -86,3 +86,39 @@ export const patchUsuario = async (
     throw error;
   }
 };
+
+/**
+ * Elimina un usuario (solo para administradores)
+ */
+export const deleteUser = async (id: number | string): Promise<boolean> => {
+  try {
+    await api.delete(`/usuarios/${id}`);
+    return true;
+  } catch (error) {
+    return handleErrorService(error, false);
+  }
+};
+
+/**
+ * Actualiza el rol y estado de un usuario (solo para administradores)
+ */
+export type AdminUpdatePayload = Partial<Pick<
+  IUser,
+  "rol" | "estado"
+>>;
+
+export const putUsuarioAdmin = async (
+  id: number | string,
+  payload: AdminUpdatePayload
+): Promise<IUser | null> => {
+  try {
+    const response = await api.put<IUser>(`/usuarios/${id}`, payload);
+    return response.data;
+  } catch (error) {
+    if (error && typeof error === "object" && "response" in error) {
+      const ax = error as { response?: { data?: { message?: string } } };
+      if (ax.response?.data?.message) throw new Error(ax.response.data.message);
+    }
+    throw error;
+  }
+};

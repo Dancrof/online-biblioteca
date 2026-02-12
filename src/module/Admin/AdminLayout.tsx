@@ -7,7 +7,7 @@ import '../Layouts/StylesLayouts/BookLayout.css';
 /**
  * Layout principal del dashboard de administrador.
  * Reutiliza el header y footer globales e incluye una
- * navegación secundaria para libros y alquileres.
+ * navegación secundaria para libros, alquileres y usuarios.
  */
 export const AdminLayout = () => {
   return (
@@ -39,6 +39,17 @@ export const AdminLayout = () => {
                 >
                   <i className="bi bi-journal-bookmark me-2" />
                   Alquileres
+                </NavLink>
+              </li>
+              <li className="layout__sidebar-item">
+                <NavLink
+                  to="/admin/users"
+                  className={({ isActive }) =>
+                    `layout__sidebar-link ${isActive ? 'layout__sidebar-link--active' : ''}`
+                  }
+                >
+                  <i className="bi bi-people me-2" />
+                  Usuarios
                 </NavLink>
               </li>
             </ul>

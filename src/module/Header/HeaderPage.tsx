@@ -2,8 +2,9 @@ import { Link } from 'react-router'
 import '../Layouts/StylesLayouts/BookLayout.css'
 import { useRentCart } from '../../context/RentCartContext'
 import { useAuth } from '../../context/AuthContext'
+import { ROLE_ADMIN } from '../../Config/constant'
 
-const ROLE_ADMIN = 'admin'
+
 
 export const HeaderPage = () => {
     const { count } = useRentCart()

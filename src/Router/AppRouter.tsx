@@ -21,11 +21,20 @@ const RentDetailPage = React.lazy(() => import("../module/Rents/RentDetailPage")
 const AdminLayout = React.lazy(() => import('../module/Admin/AdminLayout'))
 const BooksAdminPage = React.lazy(() => import('../module/Admin/BooksAdminPage'))
 const RentsAdminPage = React.lazy(() => import('../module/Admin/RentsAdminPage'))
+const UsersAdminPage = React.lazy(() => import('../module/Admin/UsersAdminPage'))
 
 const RequireAuth = ({ children }: { children: JSX.Element }) => {
     const { isAuthenticated } = useAuth();
     if (!isAuthenticated) {
         return <Navigate to="/auth" replace />;
+    }
+    return children;
+};
+
+const RedirectIfAuthenticated = ({ children }: { children: JSX.Element }) => {
+    const { isAuthenticated } = useAuth();
+    if (isAuthenticated) {
+        return <Navigate to="/books" replace />;
     }
     return children;
 };
@@ -51,7 +60,9 @@ export const AppRouter = () => {
             <Routes>
                 <Route path='/auth' element={
                     <Suspense fallback={<LoadingPage />}>
-                        <AuthLayout />
+                        <RedirectIfAuthenticated>
+                            <AuthLayout />
+                        </RedirectIfAuthenticated>
                     </Suspense>
                 } >
                     <Route index element={<LoginPage />} />
@@ -133,6 +144,11 @@ export const AppRouter = () => {
                     <Route path='rents' element={
                         <Suspense fallback={<LoadingPage />}>
                             <RentsAdminPage />
+                        </Suspense>
+                    } />
+                    <Route path='users' element={
+                        <Suspense fallback={<LoadingPage />}>
+                            <UsersAdminPage />
                         </Suspense>
                     } />
                 </Route>

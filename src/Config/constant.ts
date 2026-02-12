@@ -70,3 +70,7 @@ export const CATEGORIAS = ["Novela", "Distopia", "Fabula", "Romance", "Fantasia"
     { value: "Ruso", label: "Ruso" },
     { value: "Indio", label: "Indio" }
   ];
+  
+/** * Rol de administrador
+ */
+export const ROLE_ADMIN = 'admin'
