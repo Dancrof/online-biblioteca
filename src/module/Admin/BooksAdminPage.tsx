@@ -5,6 +5,7 @@ import type { IPaginate } from '../../interfaces/IPaginate';
 import { PaginationPage } from '../Pagination/PaginationPage';
 import { getBooks, postBook, putBook, deleteBook } from '../../Services/BookService';
 import { CATEGORIAS, IDIOMAS } from '../../Config/constant';
+import { useCloudinaryUpload } from '../../hooks/useCloudinaryUpload';
 
 type BookFormValues = Omit<Book, 'id'>;
 
@@ -39,14 +40,32 @@ export const BooksAdminPage = () => {
   const [loading, setLoading] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   const {
     register,
     handleSubmit,
     reset,
+    setValue,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<BookFormValues>({
     defaultValues: emptyBook,
+  });
+
+  const portadaUrl = watch('portada');
+
+  // Hook de Cloudinary
+  const { openUploadWidget } = useCloudinaryUpload({
+    onSuccess: (url: string) => {
+      setValue('portada', url, { shouldValidate: true });
+      setUploadError(null);
+    },
+    onError: (error: string) => {
+      setUploadError(error);
+    },
+    folder: 'libros',
+    cropping: true,
   });
 
   const books = paginateBooks.data ?? [];
@@ -303,17 +322,53 @@ export const BooksAdminPage = () => {
 
                 <div className="mb-3">
                   <label className="form-label fw-semibold">
-                    URL de portada
+                    Portada del libro
                   </label>
-                  <input
-                    type="text"
-                    className={`form-control ${errors.portada ? 'is-invalid' : ''}`}
-                    {...register('portada', {
-                      required: 'La portada es obligatoria',
-                    })}
-                  />
+                  <input type="hidden" {...register('portada', { required: 'La portada es obligatoria' })} />
+                  
+                  {portadaUrl ? (
+                    <div className="border rounded p-3 bg-light">
+                      <div className="d-flex gap-3 align-items-start">
+                        <img
+                          src={portadaUrl}
+                          alt="Preview portada"
+                          className="img-thumbnail"
+                          style={{ width: '120px', height: '160px', objectFit: 'cover' }}
+                        />
+                        <div className="flex-grow-1">
+                          <p className="mb-2 small text-muted text-truncate" title={portadaUrl}>
+                            {portadaUrl}
+                          </p>
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-outline-primary"
+                            onClick={openUploadWidget}
+                          >
+                            <i className="bi bi-cloud-upload me-2" />
+                            Cambiar imagen
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      className="btn btn-outline-secondary w-100 py-3"
+                      onClick={openUploadWidget}
+                    >
+                      <i className="bi bi-cloud-upload me-2" />
+                      Subir imagen a Cloudinary
+                    </button>
+                  )}
+                  
                   {errors.portada && (
-                    <div className="invalid-feedback d-block">{errors.portada.message}</div>
+                    <div className="text-danger small mt-1">{errors.portada.message}</div>
+                  )}
+                  {uploadError && (
+                    <div className="text-danger small mt-1">
+                      <i className="bi bi-exclamation-triangle me-1" />
+                      {uploadError}
+                    </div>
                   )}
                 </div>
 

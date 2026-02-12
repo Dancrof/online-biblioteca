@@ -675,6 +675,19 @@
       "sinopsis": "Un mundo donde los libros estan prohibidos.",
       "criticas": "Critica social poderosa.",
       "disponible": true
+    },
+    {
+      "id": "e63a",
+      "titulo": "Pepito de la Mancha",
+      "autor": "Bryan Andres",
+      "anioPublicacion": 2025,
+      "isbn": "9999999999999",
+      "categoria": "Romance",
+      "idioma": "Espanol",
+      "portada": "https://res.cloudinary.com/dfagxcqpy/image/upload/v1770920294/libros/ugelwbrng3bfmbgjuwn5.jpg",
+      "sinopsis": "este es carlo mancha",
+      "criticas": "es bueno, al parecer",
+      "disponible": true
     }
   ],
   "alquileres": []

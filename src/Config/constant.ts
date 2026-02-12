@@ -70,7 +70,10 @@ export const CATEGORIAS = ["Novela", "Distopia", "Fabula", "Romance", "Fantasia"
     { value: "Ruso", label: "Ruso" },
     { value: "Indio", label: "Indio" }
   ];
-  
-/** * Rol de administrador
+
+/**
+ * Cloudinary Configuration
  */
+export const CLOUDINARY_CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+export const CLOUDINARY_UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 export const ROLE_ADMIN = 'admin'
