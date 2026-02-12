@@ -182,12 +182,9 @@ export default function BookListPage() {
                     <button
                       className="btn btn-primary mt-3 w-100"
                       disabled={!book.disponible}
-                      onClick={() => {
-                        addToRentCart(book.id);
-                        navigate('/rents/new');
-                      }}
+                      onClick={() => addToRentCart(book.id)}
                     >
-                      Reservar libro
+                      Agregar al carrito
                     </button>
                   </div>
                 </div>

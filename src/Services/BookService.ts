@@ -105,6 +105,11 @@ export const filterBooks = async (
  */
 export const patchBookDisponible = async (id: number, disponible: boolean): Promise<Book | null> => {
     try {
+        // Validar que el ID es válido
+        if (!id || isNaN(id) || id <= 0) {
+            console.error(`ID de libro inválido: ${id}`);
+            return null;
+        }
         const res: AxiosResponse<Book> = await api.patch(`/libros/${id}`, { disponible });
         return res.data;
     } catch (err) {

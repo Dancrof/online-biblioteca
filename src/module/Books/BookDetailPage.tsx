@@ -2,7 +2,7 @@ import './Styles/BookDetailPage.css';
 import type { Book } from '../../interfaces/IBook';
 import { useEffect, useState } from 'react';
 import { getBookById } from '../../Services/BookService';
-import { Link, useNavigate, useParams } from 'react-router';
+import { Link, useParams } from 'react-router';
 import { useRentCart } from '../../context/RentCartContext';
 
 
@@ -14,7 +14,6 @@ export default function BookDetailPage() {
    * @returns Componente BookDetailPage
    */
     const { id } = useParams<{ id: string }>();
-    const navigate = useNavigate();
     const { addToRentCart } = useRentCart();
     const [bookData, setBookData] = useState<Book | null>(null);
 
@@ -69,12 +68,11 @@ export default function BookDetailPage() {
               onClick={() => {
                 if (bookData?.disponible) {
                   addToRentCart(bookData.id);
-                  navigate('/rents/new');
                 }
               }}
               disabled={!bookData?.disponible}
             >
-              Reservar libro
+              Agregar al carrito
             </button>
 
             <Link to="/books" className="book-detail__btn book-detail__btn--secondary">Volver</Link>

@@ -1,17 +1,19 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import type { IRent } from '../../interfaces/IRent';
-import { getRents, deleteRent } from '../../Services/RentService';
+import type { IUser } from '../../interfaces/IUser';
+import { getRents, deleteRent, extendRentDate } from '../../Services/RentService';
+import { getUsers } from '../../Services/UserService';
 import type { IPaginate } from '../../interfaces/IPaginate';
 import { PaginationPage } from '../Pagination/PaginationPage';
 
 type RentFilterForm = {
-  usuarioId: string;
+  cedula: string;
   soloActivos: boolean;
 };
 
 const defaultFilters: RentFilterForm = {
-  usuarioId: '',
+  cedula: '',
   soloActivos: false,
 };
 
@@ -22,10 +24,16 @@ const defaultFilters: RentFilterForm = {
  */
 export const RentsAdminPage = () => {
   const [rents, setRents] = useState<IRent[]>([]);
+  const [users, setUsers] = useState<IUser[]>([]);
   const [loading, setLoading] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitSuccess, setSubmitSuccess] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [perPage] = useState(10);
+  const [showExtendModal, setShowExtendModal] = useState(false);
+  const [selectedRent, setSelectedRent] = useState<IRent | null>(null);
+  const [extensionDays, setExtensionDays] = useState(7);
+  const [extending, setExtending] = useState(false);
 
   const {
     register,
@@ -36,6 +44,25 @@ export const RentsAdminPage = () => {
   });
 
   const filters = watch();
+
+  /**
+   * Obtener información del usuario por ID
+   */
+  const getUserInfo = (usuarioId: number): { cedula: string; nombre: string } => {
+    // Intentar encontrar por ID (considerando posibles inconsistencias de tipo)
+    const user = users.find((u) => {
+      const userId = typeof u.id === 'string' ? parseInt(u.id, 10) : u.id;
+      return userId === usuarioId;
+    });
+    
+    if (user) {
+      return {
+        cedula: user.cedula || '-',
+        nombre: `${user.nombreCompleo || ''} ${user.apellidoCompleto || ''}`.trim() || '-',
+      };
+    }
+    return { cedula: `Usuario ${usuarioId}`, nombre: '-' };
+  };
 
   /**
    * Construye una paginación a partir de una lista en memoria
@@ -72,8 +99,21 @@ export const RentsAdminPage = () => {
     }
   };
 
+  /**
+   * Carga de usuarios para el mapeo de cédula
+   */
+  const loadUsers = async () => {
+    try {
+      const data = await getUsers();
+      setUsers(data || []);
+    } catch {
+      setUsers([]);
+    }
+  };
+
   useEffect(() => {
     void loadRents();
+    void loadUsers();
   }, []);
 
   /**
@@ -81,9 +121,10 @@ export const RentsAdminPage = () => {
    */
   const filteredRents = useMemo(() => {
     return rents.filter((rent) => {
-      if (filters.usuarioId) {
-        const uid = Number(filters.usuarioId);
-        if (!Number.isNaN(uid) && rent.usuarioId !== uid) {
+      if (filters.cedula) {
+        // Buscar el usuario por cédula
+        const user = users.find((u) => u.cedula === filters.cedula);
+        if (!user || rent.usuarioId !== user.id) {
           return false;
         }
       }
@@ -92,14 +133,14 @@ export const RentsAdminPage = () => {
       }
       return true;
     });
-  }, [rents, filters]);
+  }, [rents, users, filters]);
 
   /**
    * Si cambian filtros, volver a la primera página
    */
   useEffect(() => {
     setCurrentPage(1);
-  }, [filters.usuarioId, filters.soloActivos]);
+  }, [filters.cedula, filters.soloActivos]);
 
   /**
    * Paginación (reutiliza PaginationPage)
@@ -134,6 +175,7 @@ export const RentsAdminPage = () => {
       return;
     }
     setSubmitError(null);
+    setSubmitSuccess(null);
     try {
       await deleteRent(rent.id, rent.librosIds);
       await loadRents();
@@ -141,6 +183,45 @@ export const RentsAdminPage = () => {
       const message =
         err instanceof Error ? err.message : 'Error al eliminar el alquiler.';
       setSubmitError(message);
+    }
+  };
+
+  /**
+   * Abrir modal para extender fecha
+   */
+  const handleOpenExtendModal = (rent: IRent) => {
+    setSelectedRent(rent);
+    setExtensionDays(7);
+    setShowExtendModal(true);
+    setSubmitError(null);
+    setSubmitSuccess(null);
+  };
+
+  /**
+   * Extender fecha de vencimiento
+   */
+  const handleExtendDate = async () => {
+    if (!selectedRent) return;
+    setExtending(true);
+    setSubmitError(null);
+    setSubmitSuccess(null);
+
+    try {
+      const updatedRent = await extendRentDate(selectedRent.id, extensionDays);
+      if (updatedRent) {
+        setSubmitSuccess(`Fecha del alquiler #${selectedRent.id} extendida ${extensionDays} días exitosamente.`);
+        setShowExtendModal(false);
+        setSelectedRent(null);
+        await loadRents();
+        setTimeout(() => setSubmitSuccess(null), 5000);
+      } else {
+        setSubmitError('No se pudo extender la fecha del alquiler.');
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Error al extender la fecha.';
+      setSubmitError(message);
+    } finally {
+      setExtending(false);
     }
   };
 
@@ -169,16 +250,22 @@ export const RentsAdminPage = () => {
               <form>
                 <div className="mb-3">
                   <label className="form-label fw-semibold">
-                    ID de usuario
+                    Cédula del usuario
                   </label>
                   <input
-                    type="number"
+                    type="text"
                     className="form-control"
-                    placeholder="Ej: 1"
-                    {...register('usuarioId')}
+                    placeholder="Ej: 1234567890"
+                    maxLength={10}
+                    {...register('cedula', {
+                      maxLength: {
+                        value: 10,
+                        message: 'Máximo 10 caracteres'
+                      }
+                    })}
                   />
                   <small className="text-muted">
-                    Deja vacío para ver todos los usuarios.
+                    Deja vacío para ver todos los usuarios. Máximo 10 caracteres.
                   </small>
                 </div>
 
@@ -231,6 +318,13 @@ export const RentsAdminPage = () => {
                 </div>
               )}
 
+              {submitSuccess && (
+                <div className="alert alert-success py-2" role="alert">
+                  <i className="bi bi-check-circle-fill me-2" />
+                  {submitSuccess}
+                </div>
+              )}
+
               {loading ? (
                 <p>Cargando alquileres…</p>
               ) : filteredRents.length === 0 ? (
@@ -242,7 +336,7 @@ export const RentsAdminPage = () => {
                       <thead>
                         <tr>
                           <th>ID</th>
-                          <th>Usuario</th>
+                          <th>Cédula</th>
                           <th>Libros</th>
                           <th>Inicio</th>
                           <th>Fin</th>
@@ -251,35 +345,50 @@ export const RentsAdminPage = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {(paginateRents.data ?? []).map((rent) => (
-                          <tr key={rent.id}>
-                            <td>{rent.id}</td>
-                            <td>{rent.usuarioId}</td>
-                            <td>
-                              {rent.librosIds.length
-                                ? rent.librosIds.join(', ')
-                                : '-'}
-                            </td>
-                            <td>{rent.fechaInicio || '-'}</td>
-                            <td>{rent.fechaFin || '-'}</td>
-                            <td>
-                              {rent.estado ? (
-                                <span className="badge bg-success">Activo</span>
-                              ) : (
-                                <span className="badge bg-secondary">Cerrado</span>
-                              )}
-                            </td>
-                            <td className="text-end">
-                              <button
-                                type="button"
-                                className="btn btn-outline-danger btn-sm"
-                                onClick={() => handleDelete(rent)}
-                              >
-                                <i className="bi bi-trash" /> Eliminar
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
+                        {(paginateRents.data ?? []).map((rent) => {
+                          const userInfo = getUserInfo(rent.usuarioId);
+                          return (
+                            <tr key={rent.id}>
+                              <td>{rent.id}</td>
+                              <td>{userInfo.cedula}</td>
+                              <td>
+                                {rent.librosIds.length
+                                  ? rent.librosIds.join(', ')
+                                  : '-'}
+                              </td>
+                              <td>{rent.fechaInicio || '-'}</td>
+                              <td>{rent.fechaFin || '-'}</td>
+                              <td>
+                                {rent.estado ? (
+                                  <span className="badge bg-success">Activo</span>
+                                ) : (
+                                  <span className="badge bg-secondary">Cerrado</span>
+                                )}
+                              </td>
+                              <td className="text-end">
+                                <div className="btn-group btn-group-sm" role="group">
+                                  {rent.estado && (
+                                    <button
+                                      type="button"
+                                      className="btn btn-outline-primary"
+                                      onClick={() => handleOpenExtendModal(rent)}
+                                      title="Extender fecha"
+                                    >
+                                      <i className="bi bi-calendar-plus" />
+                                    </button>
+                                  )}
+                                  <button
+                                    type="button"
+                                    className="btn btn-outline-danger"
+                                    onClick={() => handleDelete(rent)}
+                                  >
+                                    <i className="bi bi-trash" />
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
                       </tbody>
                     </table>
                   </div>
@@ -301,6 +410,94 @@ export const RentsAdminPage = () => {
           </div>
         </div>
       </div>
+      
+      {/* Modal para extender fecha */}
+      {showExtendModal && selectedRent && (
+        <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} tabIndex={-1}>
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Extender fecha de vencimiento</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => {
+                    setShowExtendModal(false);
+                    setSelectedRent(null);
+                  }}
+                  disabled={extending}
+                />
+              </div>
+              <div className="modal-body">
+                <p className="text-muted mb-3">
+                  Alquiler #<strong>{selectedRent.id}</strong> - {getUserInfo(selectedRent.usuarioId).nombre}
+                </p>
+                <p className="text-muted mb-3">
+                  Fecha actual de vencimiento: <strong>
+                    {new Date(selectedRent.fechaFin).toLocaleDateString('es-ES', {
+                      day: '2-digit',
+                      month: 'short',
+                      year: 'numeric'
+                    })}
+                  </strong>
+                </p>
+                <div className="mb-3">
+                  <label htmlFor="extensionDays" className="form-label">
+                    Días a extender:
+                  </label>
+                  <select
+                    id="extensionDays"
+                    className="form-select"
+                    value={extensionDays}
+                    onChange={(e) => setExtensionDays(Number(e.target.value))}
+                    disabled={extending}
+                  >
+                    <option value={7}>7 días</option>
+                    <option value={14}>14 días</option>
+                    <option value={21}>21 días</option>
+                    <option value={30}>30 días</option>
+                  </select>
+                </div>
+                <p className="text-info small">
+                  <i className="bi bi-info-circle me-2" />
+                  La nueva fecha será: <strong>
+                    {new Date(new Date(selectedRent.fechaFin).getTime() + extensionDays * 24 * 60 * 60 * 1000)
+                      .toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
+                  </strong>
+                </p>
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => {
+                    setShowExtendModal(false);
+                    setSelectedRent(null);
+                  }}
+                  disabled={extending}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={handleExtendDate}
+                  disabled={extending}
+                >
+                  {extending ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm me-2" />
+                      Extendiendo...
+                    </>
+                  ) : (
+                    'Confirmar extensión'
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

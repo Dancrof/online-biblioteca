@@ -50,7 +50,7 @@
       "portada": "https://covers.openlibrary.org/b/id/7222246-L.jpg",
       "sinopsis": "Un mundo vigilado por el Gran Hermano.",
       "criticas": "Impactante y vigente.",
-      "disponible": true
+      "disponible": false
     },
     {
       "id": "3",
@@ -63,7 +63,7 @@
       "portada": "https://covers.openlibrary.org/b/id/10909258-L.jpg",
       "sinopsis": "Reflexiones sobre la vida y el amor.",
       "criticas": "Sencillo y profundo.",
-      "disponible": true
+      "disponible": false
     },
     {
       "id": "4",
@@ -688,7 +688,32 @@
       "sinopsis": "este es carlo mancha",
       "criticas": "es bueno, al parecer",
       "disponible": true
+    },
+    {
+      "id": "f84c",
+      "titulo": "A la Luna",
+      "autor": "Jordan",
+      "anioPublicacion": 2026,
+      "isbn": "99999999999991",
+      "categoria": "Novela",
+      "idioma": "Ingles",
+      "portada": "https://res.cloudinary.com/dfagxcqpy/image/upload/v1770921437/libros/gday9lw5vmdvsilwfvmy.webp",
+      "sinopsis": "la chica volando",
+      "criticas": "es interesante",
+      "disponible": true
     }
   ],
-  "alquileres": []
+  "alquileres": [
+    {
+      "id": "e490",
+      "usuarioId": 2,
+      "librosIds": [
+        2,
+        3
+      ],
+      "fechaInicio": "2026-02-12",
+      "fechaFin": "2026-03-06",
+      "estado": true
+    }
+  ]
 }

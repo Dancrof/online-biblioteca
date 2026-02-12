@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router';
-import { getRentById, deleteRent } from '../../Services/RentService';
+import { getRentById, deleteRent, extendRentDate } from '../../Services/RentService';
 import { getUsers } from '../../Services/UserService';
 import { getBookById } from '../../Services/BookService';
 import type { IRent } from '../../interfaces/IRent';
@@ -34,6 +34,11 @@ export default function RentDetailPage() {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [extending, setExtending] = useState(false);
+  const [showExtendModal, setShowExtendModal] = useState(false);
+  const [extensionDays, setExtensionDays] = useState(7);
+  const [extendError, setExtendError] = useState<string | null>(null);
+  const [extendSuccess, setExtendSuccess] = useState<string | null>(null);
 
   /**
    * Efecto para obtener el alquiler y los libros
@@ -94,6 +99,32 @@ export default function RentDetailPage() {
   };
 
   /**
+   * Manejador para extender la fecha de vencimiento
+   */
+  const handleExtendDate = async () => {
+    if (!rent || !id) return;
+    setExtendError(null);
+    setExtendSuccess(null);
+    setExtending(true);
+
+    try {
+      const updatedRent = await extendRentDate(id, extensionDays);
+      if (updatedRent) {
+        setRent(updatedRent);
+        setExtendSuccess(`Fecha extendida ${extensionDays} días exitosamente.`);
+        setShowExtendModal(false);
+        setTimeout(() => setExtendSuccess(null), 5000);
+      } else {
+        setExtendError('No se pudo extender la fecha del alquiler.');
+      }
+    } catch (error) {
+      setExtendError(error instanceof Error ? error.message : 'Error al extender la fecha.');
+    } finally {
+      setExtending(false);
+    }
+  };
+
+  /**
    * Renderizado del componente
    * @returns Renderizado del componente
    */
@@ -150,7 +181,33 @@ export default function RentDetailPage() {
               {rent.estado ? 'Activo' : 'Finalizado'}
             </span>
           </div>
+          
+          {extendSuccess && (
+            <div className="alert alert-success py-2 mt-3" role="alert">
+              <i className="bi bi-check-circle-fill me-2" />
+              {extendSuccess}
+            </div>
+          )}
+          
+          {extendError && (
+            <div className="alert alert-danger py-2 mt-3" role="alert">
+              <i className="bi bi-exclamation-triangle-fill me-2" />
+              {extendError}
+            </div>
+          )}
+          
           <div className="rent-detail__header-actions">
+            {rent.estado && (
+              <button
+                type="button"
+                className="btn btn-primary me-2"
+                onClick={() => setShowExtendModal(true)}
+                disabled={extending}
+              >
+                <i className="bi bi-calendar-plus me-2" />
+                Extender fecha
+              </button>
+            )}
             <button
               type="button"
               className="btn btn-danger"
@@ -235,6 +292,79 @@ export default function RentDetailPage() {
             </div>
           )}
         </section>
+        
+        {/* Modal para extender fecha */}
+        {showExtendModal && (
+          <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} tabIndex={-1}>
+            <div className="modal-dialog modal-dialog-centered">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title">Extender fecha de vencimiento</h5>
+                  <button
+                    type="button"
+                    className="btn-close"
+                    onClick={() => setShowExtendModal(false)}
+                    disabled={extending}
+                  />
+                </div>
+                <div className="modal-body">
+                  <p className="text-muted mb-3">
+                    Fecha actual de vencimiento: <strong>{formatDate(rent.fechaFin)}</strong>
+                  </p>
+                  <div className="mb-3">
+                    <label htmlFor="extensionDays" className="form-label">
+                      Días a extender:
+                    </label>
+                    <select
+                      id="extensionDays"
+                      className="form-select"
+                      value={extensionDays}
+                      onChange={(e) => setExtensionDays(Number(e.target.value))}
+                      disabled={extending}
+                    >
+                      <option value={7}>7 días</option>
+                      <option value={14}>14 días</option>
+                      <option value={21}>21 días</option>
+                      <option value={30}>30 días</option>
+                    </select>
+                  </div>
+                  <p className="text-info small">
+                    <i className="bi bi-info-circle me-2" />
+                    La nueva fecha será: <strong>
+                      {new Date(new Date(rent.fechaFin).getTime() + extensionDays * 24 * 60 * 60 * 1000)
+                        .toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
+                    </strong>
+                  </p>
+                </div>
+                <div className="modal-footer">
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() => setShowExtendModal(false)}
+                    disabled={extending}
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={handleExtendDate}
+                    disabled={extending}
+                  >
+                    {extending ? (
+                      <>
+                        <span className="spinner-border spinner-border-sm me-2" />
+                        Extendiendo...
+                      </>
+                    ) : (
+                      'Confirmar extensión'
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </main>
   );

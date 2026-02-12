@@ -111,11 +111,21 @@ export const CreateRent = () => {
       setError('librosIds', { message: 'Selecciona al menos un libro' });
       return;
     }
+    // Filtrar y validar IDs de libros
+    const validBookIds = data.librosIds
+      .map(Number)
+      .filter((id) => !isNaN(id) && id > 0);
+    
+    if (validBookIds.length === 0) {
+      setError('librosIds', { message: 'No hay libros válidos seleccionados' });
+      return;
+    }
+    
     const payload = {
       // omit id, let backend generate
       // usuarioId será forzado por el backend al del token
       usuarioId: Number(authUser.id),
-      librosIds: data.librosIds.map(Number),
+      librosIds: validBookIds,
       fechaInicio: (data.fechaInicio || getTodayString()).slice(0, 10),
       fechaFin: (data.fechaFin || '').slice(0, 10),
       estado: data.estado,

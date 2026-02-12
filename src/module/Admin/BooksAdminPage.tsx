@@ -39,6 +39,7 @@ export const BooksAdminPage = () => {
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   const [loading, setLoading] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitSuccess, setSubmitSuccess] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
@@ -120,6 +121,7 @@ export const BooksAdminPage = () => {
    */
   const onSubmit = async (values: BookFormValues) => {
     setSubmitError(null);
+    setSubmitSuccess(null);
     try {
       if (selectedBook) {
         const updated = await putBook(selectedBook.id, values);
@@ -127,15 +129,25 @@ export const BooksAdminPage = () => {
           setSubmitError('No se pudo actualizar el libro.');
           return;
         }
+        setSubmitSuccess(`Libro "${values.titulo}" actualizado exitosamente.`);
       } else {
         const created = await postBook(values);
         if (!created) {
           setSubmitError('No se pudo crear el libro.');
           return;
         }
+        setSubmitSuccess(`Libro "${values.titulo}" creado exitosamente.`);
       }
+      
+      // Limpiar formulario y resetear estado
       setSelectedBook(null);
+      reset(emptyBook);
       loadPage(currentPage);
+      
+      // Ocultar mensaje de éxito después de 5 segundos
+      setTimeout(() => {
+        setSubmitSuccess(null);
+      }, 5000);
     } catch (err) {
       const message =
         err instanceof Error ? err.message : 'Error al guardar el libro. Intenta de nuevo.';
@@ -414,6 +426,13 @@ export const BooksAdminPage = () => {
                     Libro disponible para alquiler
                   </label>
                 </div>
+
+                {submitSuccess && (
+                  <div className="alert alert-success py-2" role="alert">
+                    <i className="bi bi-check-circle-fill me-2" />
+                    {submitSuccess}
+                  </div>
+                )}
 
                 {submitError && (
                   <div className="alert alert-danger py-2" role="alert">

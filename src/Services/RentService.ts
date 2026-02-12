@@ -80,8 +80,28 @@ export const postRent = async (rent: Omit<IRent, 'id'>): Promise<IRent> => {
     const createdRent = response.data;
     // Marcar los libros alquilados como no disponibles
     if (createdRent.librosIds?.length) {
+      // Filtrar IDs válidos antes de actualizar
+      const validBookIds = createdRent.librosIds.filter(
+        (id) => id != null && !isNaN(Number(id)) && Number(id) > 0
+      );
+      
+      if (validBookIds.length === 0) {
+        await deleteRent(createdRent.id, []);
+        return handleErrorService(
+          new Error('No hay libros válidos en el alquiler.'),
+          {
+            id: 0,
+            usuarioId: 0,
+            librosIds: [],
+            fechaInicio: '',
+            fechaFin: '',
+            estado: false
+          }
+        );
+      }
+      
       const updateResults = await Promise.all(
-        createdRent.librosIds.map((bookId) => patchBookDisponible(bookId, false))
+        validBookIds.map((bookId) => patchBookDisponible(Number(bookId), false))
       );
       const anyFailed = updateResults.some((result) => result === null);
       if (anyFailed) {
@@ -136,4 +156,34 @@ export const deleteRent = async (id: number | string, librosIds?: number[]): Pro
     await Promise.all(librosIds.map((bookId) => patchBookDisponible(bookId, true)));
   }
   await api.delete(`/alquileres/${id}`);
+};
+
+/**
+ * Extiende la fecha de fin de un alquiler
+ * @param id - El ID del alquiler
+ * @param dias - Número de días a extender
+ * @returns El alquiler actualizado o null si falla
+ */
+export const extendRentDate = async (id: number | string, dias: number): Promise<IRent | null> => {
+  try {
+    // Primero obtener el alquiler actual
+    const currentRent = await getRentById(id);
+    if (!currentRent) {
+      throw new Error('Alquiler no encontrado');
+    }
+
+    // Calcular la nueva fecha de fin
+    const currentEndDate = new Date(currentRent.fechaFin);
+    const newEndDate = new Date(currentEndDate);
+    newEndDate.setDate(newEndDate.getDate() + dias);
+
+    // Actualizar el alquiler
+    const response: AxiosResponse<IRent> = await api.patch(`/alquileres/${id}`, {
+      fechaFin: newEndDate.toISOString().split('T')[0],
+    });
+
+    return response.data;
+  } catch (error) {
+    return handleErrorService(error, null);
+  }
 };
