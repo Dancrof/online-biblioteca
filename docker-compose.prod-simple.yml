@@ -6,15 +6,12 @@ services:
     container_name: online-biblioteca-api
     environment:
       - NODE_ENV=production
-      # Usa JWT_SECRET del archivo .env o variable de entorno del servidor
       - JWT_SECRET=${JWT_SECRET}
       - PORT=4000
     ports:
       - "4000:4000"
     volumes:
-      # Persistencia de la base de datos
       - ./database/db.json:/app/database/db.json
-      # Opcional: logs
       - ./logs:/app/logs
     restart: unless-stopped
     networks:
@@ -25,8 +22,6 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        # URL de la API accesible desde el navegador
-        # Cambia esto por tu IP pública o dominio
         VITE_URL_API: ${VITE_URL_API:-http://localhost:4000}
     container_name: online-biblioteca-web
     ports:
