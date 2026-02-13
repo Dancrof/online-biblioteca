@@ -1,8 +1,31 @@
-# Online Biblioteca
+# Online Biblioteca 📚
 
 Aplicación de biblioteca online con React + TypeScript + Vite y API con json-server.
 
-## Ejecución con Docker
+## 🚀 Despliegue en Producción
+
+### Desplegar en Oracle Cloud VPS
+
+**Inicio Rápido (5 minutos)**: [QUICKSTART.md](QUICKSTART.md)
+
+**Guía Completa**: [DEPLOYMENT.md](DEPLOYMENT.md)
+
+**Checklist**: [DEPLOYMENT_CHECKLIST.md](DEPLOYMENT_CHECKLIST.md)
+
+```bash
+# En tu VPS
+git clone <tu-repo> online-biblioteca
+cd online-biblioteca
+cp .env.example .env
+nano .env  # Configura JWT_SECRET y VITE_URL_API
+./deploy.sh
+```
+
+---
+
+## 💻 Desarrollo Local
+
+### Ejecución con Docker
 
 Requisito: [Docker](https://docs.docker.com/get-docker/) y [Docker Compose](https://docs.docker.com/compose/install/) instalados.
 

@@ -22,3 +22,33 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Environment variables
+.env
+.env.local
+.env.production
+.env.*.local
+
+# Backups
+backups/
+*.backup
+*.bak
+
+# Database backups
+database/backups/
+
+# Docker volumes
+volumes/
+
+# SSL certificates
+*.pem
+*.key
+*.crt
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# Deployment files (opcional, si no quieres versionar)
+# *.tar.gz
+# *.zip
