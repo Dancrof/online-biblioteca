@@ -49,7 +49,8 @@ fi
 
 # Reconstruir y reiniciar
 echo "🔨 Reconstruyendo contenedores..."
-$DOCKER_COMPOSE -f docker-compose.prod.yml up -d --build --no-cache
+$DOCKER_COMPOSE -f docker-compose.prod.yml build --no-cache
+$DOCKER_COMPOSE -f docker-compose.prod.yml up -d
 
 echo ""
 echo -e "${GREEN}✨ Actualización completada!${NC}"
