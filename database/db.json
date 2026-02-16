@@ -37,7 +37,7 @@
       "portada": "https://covers.openlibrary.org/b/id/10523358-L.jpg",
       "sinopsis": "La historia de la familia Buendia en Macondo.",
       "criticas": "Obra maestra del realismo magico.",
-      "disponible": true
+      "disponible": false
     },
     {
       "id": "2",
@@ -50,7 +50,7 @@
       "portada": "https://covers.openlibrary.org/b/id/7222246-L.jpg",
       "sinopsis": "Un mundo vigilado por el Gran Hermano.",
       "criticas": "Impactante y vigente.",
-      "disponible": false
+      "disponible": true
     },
     {
       "id": "3",
@@ -63,7 +63,7 @@
       "portada": "https://covers.openlibrary.org/b/id/10909258-L.jpg",
       "sinopsis": "Reflexiones sobre la vida y el amor.",
       "criticas": "Sencillo y profundo.",
-      "disponible": false
+      "disponible": true
     },
     {
       "id": "4",
@@ -705,14 +705,13 @@
   ],
   "alquileres": [
     {
-      "id": "e490",
+      "id": "8761",
       "usuarioId": 2,
       "librosIds": [
-        2,
-        3
+        1
       ],
-      "fechaInicio": "2026-02-12",
-      "fechaFin": "2026-03-06",
+      "fechaInicio": "2026-02-16",
+      "fechaFin": "2026-02-20",
       "estado": true
     }
   ]

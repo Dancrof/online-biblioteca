@@ -12,8 +12,8 @@ services:
     ports:
       - "4000:4000"
     volumes:
-      # Montar la base de datos para persistencia y posibles cambios
-      - ./database/db.json:/app/database/db.json
+      # Usar volumen para evitar problemas de permisos en desarrollo
+      - db-data:/app/database
     restart: unless-stopped
 
   web:
@@ -29,3 +29,6 @@ services:
     depends_on:
       - api
     restart: unless-stopped
+
+volumes:
+  db-data:
