@@ -352,8 +352,8 @@ export const RentsAdminPage = () => {
                               <td>{rent.id}</td>
                               <td>{userInfo.cedula}</td>
                               <td>
-                                {rent.librosIds.length
-                                  ? rent.librosIds.join(', ')
+                                {(rent.librosIds ?? []).length
+                                  ? (rent.librosIds ?? []).join(', ')
                                   : '-'}
                               </td>
                               <td>{rent.fechaInicio || '-'}</td>

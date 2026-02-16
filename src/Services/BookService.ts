@@ -35,7 +35,27 @@ export const getBooks = async (
         }
 
         const response: AxiosResponse<IPaginate<Book>> = await api.get("/libros", { params });
-        return response.data;
+        const result = response.data;
+        
+        // Validate that data is an array
+        if (!result || typeof result !== 'object') {
+            return {
+                data: [],
+                first: 1,
+                prev: null,
+                next: 1,
+                last: 1,
+                pages: 1,
+                items: 0
+            };
+        }
+        
+        // Ensure data property is always an array
+        if (!Array.isArray(result.data)) {
+            result.data = [];
+        }
+        
+        return result;
     } catch (error) {
         return handleErrorService(error, {
             data: [],
@@ -91,7 +111,9 @@ export const filterBooks = async (
             params: queryParams,
         });
 
-        return response.data;
+        // Ensure response data is always an array
+        const data = response.data;
+        return Array.isArray(data) ? data : [];
     } catch (error) {
         return handleErrorService(error, []);
     }

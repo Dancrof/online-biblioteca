@@ -42,7 +42,9 @@ export const postUser = async (user: Omit<IUser, "id">): Promise<IUser> => {
 export const getUsers = async (): Promise<IUser[] | null> => {
   try {
     const response: AxiosResponse<IUser[]> = await api.get(`/usuarios`);
-    return response.data;
+    // Ensure response is always an array
+    const data = response.data;
+    return Array.isArray(data) ? data : [];
   } catch (error) {
     return handleErrorService(error, null);
   }

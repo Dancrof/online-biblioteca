@@ -47,8 +47,13 @@ export const getRents = async (paginaActual: number = 1, cantidadPorPagina: numb
       });
       const body = response.data as unknown;
       // Si el backend ya devuelve formato IPaginate (objeto con .data)
-      if (body && typeof body === "object" && "data" in body && Array.isArray((body as IPaginate<IRent>).data)) {
-          return body as IPaginate<IRent>;
+      if (body && typeof body === "object" && "data" in body) {
+          const paginateBody = body as IPaginate<IRent>;
+          // Ensure data is always an array
+          if (!Array.isArray(paginateBody.data)) {
+              paginateBody.data = [];
+          }
+          return paginateBody;
       }
       // json-server: body es el array, total en header X-Total-Count
       const list = Array.isArray(body) ? (body as IRent[]) : [];
