@@ -28,7 +28,23 @@ echo "📦 Creando backup..."
 # Obtener últimos cambios (si usas git)
 if [ -d .git ]; then
     echo "⬇️  Obteniendo últimos cambios..."
+    
+    # Guardar cambios locales si existen
+    if ! git diff-index --quiet HEAD --; then
+        echo "⚠️  Detectados cambios locales, guardando temporalmente..."
+        git stash
+        STASHED=true
+    else
+        STASHED=false
+    fi
+    
     git pull
+    
+    # Restaurar cambios guardados
+    if [ "$STASHED" = true ]; then
+        echo "📥 Restaurando cambios locales..."
+        git stash pop || echo "⚠️  Revisa conflictos manualmente"
+    fi
 fi
 
 # Reconstruir y reiniciar
