@@ -12,8 +12,8 @@ services:
     ports:
       - "4000:4000"
     volumes:
-      # Persistencia de la base de datos
-      - ./database/db.json:/app/database/db.json
+      # Usar volumen para evitar problemas de permisos
+      - db-data:/app/database
       # Opcional: logs
       - ./logs:/app/logs
     restart: unless-stopped
@@ -42,4 +42,4 @@ networks:
     driver: bridge
 
 volumes:
-  database:
+  db-data:
