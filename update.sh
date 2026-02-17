@@ -47,12 +47,24 @@ if [ -d .git ]; then
     fi
 fi
 
+# Determinar qué archivo docker-compose usar
+if [ -f "docker-compose.prod-nginx-host.yml" ]; then
+    COMPOSE_FILE="docker-compose.prod-nginx-host.yml"
+    echo "📝 Usando configuración: docker-compose.prod-nginx-host.yml"
+elif [ -f "docker-compose.prod.yml" ]; then
+    COMPOSE_FILE="docker-compose.prod.yml"
+    echo "📝 Usando configuración: docker-compose.prod.yml"
+else
+    echo "❌ No se encontró archivo docker-compose para producción"
+    exit 1
+fi
+
 # Reconstruir y reiniciar
 echo "🔨 Reconstruyendo contenedores..."
-$DOCKER_COMPOSE -f docker-compose.prod.yml build --no-cache
-$DOCKER_COMPOSE -f docker-compose.prod.yml up -d
+$DOCKER_COMPOSE -f $COMPOSE_FILE build --no-cache
+$DOCKER_COMPOSE -f $COMPOSE_FILE up -d
 
 echo ""
 echo -e "${GREEN}✨ Actualización completada!${NC}"
 echo ""
-echo "Ver logs con: $DOCKER_COMPOSE -f docker-compose.prod.yml logs -f"
+echo "Ver logs con: $DOCKER_COMPOSE -f $COMPOSE_FILE logs -f"
