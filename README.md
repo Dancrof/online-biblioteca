@@ -1,139 +1,333 @@
-# Online Biblioteca 📚
+# 📚 Online Biblioteca
 
-Aplicación de biblioteca online con React + TypeScript + Vite y API con json-server.
+Sistema de gestión de biblioteca online desarrollado con React + TypeScript + Vite en el frontend y json-server como API backend.
 
-## 🚀 Despliegue en Producción
+## ✨ Características
 
-### Desplegar en Oracle Cloud VPS
+- 📖 Gestión de libros (CRUD completo)
+- 👥 Gestión de usuarios y autenticación JWT
+- 🔐 Sistema de roles (Admin/Usuario)
+- 📋 Sistema de préstamos (rentas)
+- 🖼️ Carga de imágenes con Cloudinary
+- 🔍 Búsqueda y filtrado de libros
+- 📱 Diseño responsive
 
-**Inicio Rápido (5 minutos)**: [QUICKSTART.md](QUICKSTART.md)
+## 🛠️ Tecnologías
 
-**Guía Completa**: [DEPLOYMENT.md](DEPLOYMENT.md)
+**Frontend:**
+- React 18
+- TypeScript
+- Vite
+- React Router
+- Context API
 
-**Checklist**: [DEPLOYMENT_CHECKLIST.md](DEPLOYMENT_CHECKLIST.md)
+**Backend:**
+- json-server (API REST)
+- JWT para autenticación
 
-```bash
-# En tu VPS
-git clone <tu-repo> online-biblioteca
-cd online-biblioteca
-cp .env.example .env
-nano .env  # Configura JWT_SECRET y VITE_URL_API
-./deploy.sh
-```
+**DevOps:**
+- Docker & Docker Compose
+- Nginx (reverse proxy)
 
 ---
 
-## 💻 Desarrollo Local
+## 🚀 Inicio Rápido
 
-### Ejecución con Docker
+### Prerrequisitos
 
-Requisito: [Docker](https://docs.docker.com/get-docker/) y [Docker Compose](https://docs.docker.com/compose/install/) instalados.
+- [Docker](https://docs.docker.com/get-docker/) y [Docker Compose](https://docs.docker.com/compose/install/)
+- Git
 
+### Desarrollo Local
+
+1. **Clonar el repositorio**
 ```bash
-# Construir y levantar todos los servicios
-docker compose up --build
-
-# En segundo plano
-docker compose up -d --build
+git clone <tu-repo-url> online-biblioteca
+cd online-biblioteca
 ```
 
-- **Frontend:** http://localhost:8080  
-- **API (json-server):** http://localhost:4000  
-
-Para usar otra URL de API en el frontend (por ejemplo en producción), pasa el argumento al construir la imagen:
-
+2. **Ejecutar con Docker**
 ```bash
-docker build --build-arg VITE_URL_API=https://tu-api.com -f Dockerfile -t online-biblioteca-web .
+./deploy-dev.sh
 ```
 
-## Desarrollo local (sin Docker)
+O manualmente:
+```bash
+docker compose -f docker-compose.dev.yml up -d
+```
+
+3. **Acceder a la aplicación**
+- Frontend: http://localhost:8080
+- API: http://localhost:4000
+
+### Desarrollo sin Docker
 
 ```bash
+# Instalar dependencias
 npm install
-# Terminal 1: API
+
+# Terminal 1: Levantar el backend
 npm run start:json-server
-# Terminal 2: Frontend
+
+# Terminal 2: Levantar el frontend
 npm run dev
 ```
 
-Crea un archivo `.env` con:
-
-```
+Crea un archivo `.env`:
+```env
 VITE_URL_API=http://localhost:4000
 ```
 
 ---
 
-# React + TypeScript + Vite
+## 🌐 Despliegue en Producción
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+### Opción 1: Despliegue Rápido con Docker
 
-Currently, two official plugins are available:
+1. **Configurar variables de entorno**
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Crea un archivo `.env`:
+```env
+# Seguridad
+JWT_SECRET=tu_secret_super_seguro_aquí
 
-## React Compiler
+# URL de la API (cambia por tu dominio o IP)
+VITE_URL_API=https://tu-dominio.com/api
 
-The React Compiler is currently not compatible with SWC. See [this issue](https://github.com/vitejs/vite-plugin-react/issues/428) for tracking the progress.
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# Puerto del backend
+PORT=4000
+NODE_ENV=production
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Genera un JWT secret seguro:
+```bash
+openssl rand -base64 32
 ```
+
+2. **Ejecutar deploy**
+```bash
+chmod +x deploy-prod.sh
+./deploy-prod.sh
+```
+
+Los servicios estarán disponibles en:
+- Frontend: http://127.0.0.1:8080
+- API: http://127.0.0.1:4000
+
+### Opción 2: Despliegue con Nginx y SSL
+
+Si tienes un dominio y quieres usar HTTPS:
+
+1. **Instalar Nginx**
+```bash
+sudo apt update
+sudo apt install nginx -y
+```
+
+2. **Configurar Nginx**
+```bash
+# Copiar la configuración
+sudo cp nginx.conf /etc/nginx/sites-available/biblioteca
+
+# Actualizar el dominio en el archivo
+sudo nano /etc/nginx/sites-available/biblioteca
+# Cambia "biblioteca.plataformaescolar.org" por tu dominio
+
+# Crear symlink
+sudo ln -s /etc/nginx/sites-available/biblioteca /etc/nginx/sites-enabled/
+
+# Verificar configuración
+sudo nginx -t
+```
+
+3. **Instalar certificados SSL con Let's Encrypt**
+```bash
+sudo apt install certbot python3-certbot-nginx -y
+sudo certbot --nginx -d tu-dominio.com
+sudo systemctl restart nginx
+```
+
+4. **Desplegar la aplicación**
+```bash
+./deploy-prod.sh
+```
+
+Tu aplicación estará disponible en: https://tu-dominio.com
+
+### Despliegue en Oracle Cloud (Free Tier)
+
+1. **Crear instancia VM** (VM.Standard.E2.1.Micro es gratis)
+
+2. **Abrir puertos en Security Lists:**
+   - 22 (SSH)
+   - 80 (HTTP)
+   - 443 (HTTPS)
+   - 4000 (API)
+   - 8080 (Web)
+
+3. **Conectar al VPS**
+```bash
+ssh ubuntu@<TU_IP_PUBLICA>
+```
+
+4. **Instalar Docker**
+```bash
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+sudo usermod -aG docker $USER
+newgrp docker
+```
+
+5. **Configurar Firewall**
+```bash
+sudo apt install ufw -y
+sudo ufw allow 22/tcp
+sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp
+sudo ufw allow 8080/tcp
+sudo ufw allow 4000/tcp
+sudo ufw enable
+```
+
+6. **Clonar y desplegar**
+```bash
+git clone <TU_REPO_URL> online-biblioteca
+cd online-biblioteca
+cp .env.example .env
+nano .env  # Configurar variables
+./deploy-prod.sh
+```
+
+---
+
+## 📝 Comandos Útiles
+
+### Desarrollo
+```bash
+# Ver logs en tiempo real
+docker compose -f docker-compose.dev.yml logs -f
+
+# Detener servicios
+docker compose -f docker-compose.dev.yml down
+
+# Reconstruir imágenes
+docker compose -f docker-compose.dev.yml up -d --build
+
+# Ejecutar sin Docker
+npm run dev              # Frontend
+npm run start:json-server # Backend
+```
+
+### Producción
+```bash
+# Ver logs
+sudo docker compose -f docker-compose.prod.yml logs -f
+
+# Reiniciar servicios
+sudo docker compose -f docker-compose.prod.yml restart
+
+# Detener servicios
+sudo docker compose -f docker-compose.prod.yml down
+
+# Ver estado de contenedores
+sudo docker compose -f docker-compose.prod.yml ps
+
+# Backup de la base de datos
+./backup.sh
+```
+
+### Nginx
+```bash
+# Verificar configuración
+sudo nginx -t
+
+# Reiniciar Nginx
+sudo systemctl restart nginx
+
+# Ver logs
+sudo tail -f /var/log/nginx/biblioteca_access.log
+sudo tail -f /var/log/nginx/biblioteca_error.log
+```
+
+---
+
+## 📁 Estructura del Proyecto
+
+```
+online-biblioteca/
+├── api/                    # Backend (json-server)
+│   └── server.js
+├── database/              # Base de datos JSON
+│   └── db.json
+├── src/                   # Frontend React
+│   ├── Config/           # Configuración (constantes, API)
+│   ├── context/          # Context API (Auth, Cart)
+│   ├── hooks/            # Custom hooks
+│   ├── interfaces/       # TypeScript interfaces
+│   ├── module/           # Componentes por módulo
+│   │   ├── Admin/       # Panel de administración
+│   │   ├── Auth/        # Login/Register
+│   │   ├── Books/       # Gestión de libros
+│   │   ├── Rents/       # Gestión de préstamos
+│   │   └── User/        # Perfil de usuario
+│   ├── Router/          # Rutas de la aplicación
+│   └── Services/        # Servicios API
+├── docker-compose.dev.yml  # Docker para desarrollo
+├── docker-compose.prod.yml # Docker para producción
+├── deploy-dev.sh          # Script deploy desarrollo
+├── deploy-prod.sh         # Script deploy producción
+├── nginx.conf             # Configuración Nginx
+└── README.md              # Este archivo
+```
+
+---
+
+## 🔧 Variables de Entorno
+
+### Frontend (.env)
+```env
+VITE_URL_API=http://localhost:4000           # URL del backend
+VITE_CLOUDINARY_CLOUD_NAME=tu_cloud_name     # Cloudinary (opcional)
+VITE_CLOUDINARY_UPLOAD_PRESET=tu_preset      # Cloudinary (opcional)
+```
+
+### Backend
+```env
+JWT_SECRET=tu_secret_super_seguro
+PORT=4000
+NODE_ENV=production
+```
+
+---
+
+## 👥 Usuarios por Defecto
+
+### Administrador
+- Email: `admin@biblioteca.com`
+- Password: `admin123`
+
+### Usuario Regular
+- Email: `user@biblioteca.com`
+- Password: `user123`
+
+---
+
+## 🤝 Contribuir
+
+1. Fork el proyecto
+2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
+3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
+4. Push a la rama (`git push origin feature/AmazingFeature`)
+5. Abre un Pull Request
+
+---
+
+## 📄 Licencia
+
+Este proyecto está bajo la Licencia MIT.
+
+---
+
+## 📧 Contacto
+
+Para soporte o consultas, abre un issue en el repositorio.

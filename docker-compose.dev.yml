@@ -1,0 +1,39 @@
+# Docker Compose para DESARROLLO
+# Uso: docker compose -f docker-compose.dev.yml up
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: biblioteca-api-dev
+    environment:
+      - NODE_ENV=development
+      - JWT_SECRET=dev_secret_key_change_in_production
+      - PORT=4000
+    ports:
+      - "4000:4000"
+    volumes:
+      # Volumen para persistencia de datos
+      - db-data:/app/database
+      # Hot reload para desarrollo (opcional, descomentar si necesitas)
+      # - ./api:/app/api
+      # - ./database:/app/database
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # URL de la API para desarrollo local
+        VITE_URL_API: http://localhost:4000
+    container_name: biblioteca-web-dev
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  db-data:

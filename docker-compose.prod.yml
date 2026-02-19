@@ -1,45 +1,45 @@
+# Docker Compose para PRODUCCIÓN
+# Uso: docker compose -f docker-compose.prod.yml up -d
+# 
+# Configuración:
+# - Crea un archivo .env con las variables necesarias
+# - Asegúrate de configurar JWT_SECRET y VITE_URL_API correctamente
+
 services:
+  # API Backend
   api:
     build:
       context: .
       dockerfile: Dockerfile.api
-    container_name: online-biblioteca-api
+    container_name: biblioteca-api-prod
     environment:
       - NODE_ENV=production
-      # Usa JWT_SECRET del archivo .env o variable de entorno del servidor
       - JWT_SECRET=${JWT_SECRET}
       - PORT=4000
     ports:
-      - "4000:4000"
+      # Exponer solo en localhost si usas Nginx del host
+      - "127.0.0.1:4000:4000"
     volumes:
-      # Usar volumen para evitar problemas de permisos
       - db-data:/app/database
-      # Opcional: logs
       - ./logs:/app/logs
     restart: unless-stopped
-    networks:
-      - biblioteca-network
 
+  # Frontend Web
   web:
     build:
       context: .
       dockerfile: Dockerfile
       args:
-        # URL de la API accesible desde el navegador
-        # Cambia esto por tu IP pública o dominio
-        VITE_URL_API: ${VITE_URL_API:-http://localhost:4000}
-    container_name: online-biblioteca-web
+        # URL de la API - se toma del archivo .env
+        # Ejemplo: VITE_URL_API=https://tu-dominio.com/api
+        VITE_URL_API: ${VITE_URL_API}
+    container_name: biblioteca-web-prod
     ports:
-      - "8080:80"
+      # Exponer solo en localhost si usas Nginx del host
+      - "127.0.0.1:8080:80"
     depends_on:
       - api
     restart: unless-stopped
-    networks:
-      - biblioteca-network
-
-networks:
-  biblioteca-network:
-    driver: bridge
 
 volumes:
   db-data:
