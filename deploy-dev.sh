@@ -16,19 +16,19 @@ NC='\033[0m'
 
 # Detener contenedores existentes
 echo -e "${YELLOW}[1/4] Deteniendo contenedores existentes...${NC}"
-docker compose -f docker-compose.dev.yml down 2>/dev/null || true
+sudo docker compose -f docker-compose.dev.yml down 2>/dev/null || true
 
 # Limpiar imágenes antiguas (opcional)
 echo -e "${YELLOW}[2/4] Limpiando imágenes antiguas...${NC}"
-docker system prune -f
+sudo docker system prune -f
 
 # Construir imágenes
 echo -e "${YELLOW}[3/4] Construyendo imágenes...${NC}"
-docker compose -f docker-compose.dev.yml build
+sudo docker compose -f docker-compose.dev.yml build --no-cache
 
 # Levantar contenedores
 echo -e "${YELLOW}[4/4] Levantando contenedores...${NC}"
-docker compose -f docker-compose.dev.yml up -d
+sudo docker compose -f docker-compose.dev.yml up -d
 
 # Esperar a que los servicios estén listos
 echo ""
@@ -46,7 +46,7 @@ echo "  • API Backend: http://localhost:4000"
 echo "  • Frontend Web: http://localhost:8080"
 echo ""
 echo -e "${BLUE}Comandos útiles:${NC}"
-echo "  Ver logs:     docker compose -f docker-compose.dev.yml logs -f"
-echo "  Detener:      docker compose -f docker-compose.dev.yml down"
-echo "  Reconstruir:  docker compose -f docker-compose.dev.yml up -d --build"
+echo "  Ver logs:     sudo docker compose -f docker-compose.dev.yml logs -f"
+echo "  Detener:      sudo docker compose -f docker-compose.dev.yml down"
+echo "  Reconstruir:  sudo docker compose -f docker-compose.dev.yml up -d --build"
 echo ""
