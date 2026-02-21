@@ -14,7 +14,7 @@ RUN npm ci
 COPY . .
 
 # Variable de entorno para la API (build-time en Vite)
-ARG VITE_URL_API=http://localhost:4000
+ARG VITE_URL_API=http://localhost:4000/api
 ENV VITE_URL_API=$VITE_URL_API
 
 RUN npm run build

@@ -13,6 +13,12 @@ services:
       - PORT=4000
     ports:
       - "4000:4000"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:4000/api/libros').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     volumes:
       # Volumen para persistencia de datos
       - db-data:/app/database
@@ -27,12 +33,19 @@ services:
       dockerfile: Dockerfile
       args:
         # URL de la API para desarrollo local
-        VITE_URL_API: http://localhost:4000
+        VITE_URL_API: http://localhost:4000/api
     container_name: biblioteca-web-dev
     ports:
       - "8080:80"
     depends_on:
-      - api
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     restart: unless-stopped
 
 volumes:

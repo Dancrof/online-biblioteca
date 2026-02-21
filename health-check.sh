@@ -60,8 +60,8 @@ $DOCKER_COMPOSE -f docker-compose.prod.yml ps
 echo ""
 
 # 5. Verificar API
-echo -n "🔌 API responde (puerto 4000)... "
-if curl -sf http://localhost:4000 > /dev/null 2>&1; then
+echo -n "🔌 API responde (puerto 4000, /api)... "
+if curl -sf http://localhost:4000/api/libros > /dev/null 2>&1; then
     echo -e "${GREEN}✓${NC}"
     API_STATUS="OK"
 else
@@ -124,7 +124,7 @@ if [ "$API_STATUS" = "OK" ] && [ "$WEB_STATUS" = "OK" ]; then
     echo ""
     echo "🌐 Accede a tu aplicación:"
     echo "   Frontend: http://localhost:8080"
-    echo "   API:      http://localhost:4000"
+    echo "   API:      http://localhost:4000/api"
 else
     echo -e "${RED}❌ Algunos servicios no están funcionando${NC}"
     echo ""

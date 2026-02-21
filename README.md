@@ -58,7 +58,7 @@ docker compose -f docker-compose.dev.yml up -d
 
 3. **Acceder a la aplicación**
 - Frontend: http://localhost:8080
-- API: http://localhost:4000
+- API: http://localhost:4000/api
 
 ### Desarrollo sin Docker
 
@@ -75,7 +75,7 @@ npm run dev
 
 Crea un archivo `.env`:
 ```env
-VITE_URL_API=http://localhost:4000
+VITE_URL_API=http://localhost:4000/api
 ```
 
 ---
@@ -112,7 +112,7 @@ chmod +x deploy-prod.sh
 
 Los servicios estarán disponibles en:
 - Frontend: http://127.0.0.1:8080
-- API: http://127.0.0.1:4000
+- API: http://127.0.0.1:4000/api
 
 ### Opción 2: Despliegue con Nginx y SSL
 
@@ -286,7 +286,7 @@ online-biblioteca/
 
 ### Frontend (.env)
 ```env
-VITE_URL_API=http://localhost:4000           # URL del backend
+VITE_URL_API=http://localhost:4000/api       # URL base del backend
 VITE_CLOUDINARY_CLOUD_NAME=tu_cloud_name     # Cloudinary (opcional)
 VITE_CLOUDINARY_UPLOAD_PRESET=tu_preset      # Cloudinary (opcional)
 ```
