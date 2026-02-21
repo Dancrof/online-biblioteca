@@ -11,6 +11,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+const router = express.Router();
 const PORT = process.env.PORT || 4000;
 const JWT_SECRET = process.env.JWT_SECRET || "dev_secret_change_me";
 const JWT_EXPIRES_IN = "2h";
@@ -82,7 +83,7 @@ function authMiddleware(req, res, next) {
  * Registro y login devuelven token + usuario (sin contraseña).
  * Perfil GET/PATCH solo para el propio usuario (requiere token).
  */
-app.post("/auth/register", async (req, res) => {
+router.post("/auth/register", async (req, res) => {
   try {
     const {
       cedula,
@@ -150,7 +151,7 @@ app.post("/auth/register", async (req, res) => {
 /**
  * Login: verifica credenciales y devuelve token + usuario (sin contraseña).
  */
-app.post("/auth/login", async (req, res) => {
+router.post("/auth/login", async (req, res) => {
   try {
     const { correo, contrasena } = req.body || {};
 
@@ -192,7 +193,7 @@ app.post("/auth/login", async (req, res) => {
  * GET /auth/me: devuelve datos del usuario logueado (sin contraseña).
  * Requiere token en Authorization header. Útil para validar token y mostrar perfil.
  */
-app.get("/auth/me", (req, res) => {
+router.get("/auth/me", (req, res) => {
   const authHeader = req.headers.authorization || "";
   const token = authHeader.startsWith("Bearer ") ? authHeader.substring(7) : null;
 
@@ -208,7 +209,7 @@ app.get("/auth/me", (req, res) => {
   }
 });
 
-app.use(authMiddleware);
+router.use(authMiddleware);
 
 /**
  * Middleware: exige token y deja req.user. Usar en rutas de perfil (GET/PATCH /usuarios/:id).
@@ -239,7 +240,7 @@ function requireOwnUser(req, res, next) {
 }
 
 /** GET /usuarios/:id — solo el propio usuario (sin contraseña) */
-app.get("/usuarios/:id", requireAuthForProfile, requireOwnUser, (req, res) => {
+router.get("/usuarios/:id", requireAuthForProfile, requireOwnUser, (req, res) => {
   const usuarios = db.data.usuarios || [];
   const user = usuarios.find((u) => String(u.id) === String(req.params.id));
   if (!user) return res.status(404).json({});
@@ -257,7 +258,7 @@ const ALLOWED_PROFILE_FIELDS = [
 ];
 
 /** PATCH /usuarios/:id — solo el propio usuario; campos permitidos y correo único */
-app.patch("/usuarios/:id", requireAuthForProfile, requireOwnUser, async (req, res) => {
+router.patch("/usuarios/:id", requireAuthForProfile, requireOwnUser, async (req, res) => {
   try {
     const usuarios = db.data.usuarios || [];
     const index = usuarios.findIndex((u) => String(u.id) === String(req.params.id));
@@ -310,7 +311,7 @@ function optionalAuth(req, res, next) {
 }
 
 /** GET /alquileres — solo del usuario logueado si hay token */
-app.get("/alquileres", optionalAuth, (req, res) => {
+router.get("/alquileres", optionalAuth, (req, res) => {
   const query = { ...req.query };
   if (req.user?.id) {
     // Filtrar por usuarioId del token (comparar como número)
@@ -333,7 +334,7 @@ app.get("/alquileres", optionalAuth, (req, res) => {
 });
 
 /** POST /alquileres — fuerza usuarioId del token */
-app.post("/alquileres", requireAuthForProfile, async (req, res) => {
+router.post("/alquileres", requireAuthForProfile, async (req, res) => {
   if (!isItem(req.body)) return res.status(400).json({});
   const body = { ...req.body };
   body.usuarioId = Number(req.user.id);
@@ -352,20 +353,20 @@ function apiMiddleware(req, res, next) {
 }
 
 /** Rutas REST genéricas para libros, usuarios y alquileres */
-app.get("/:name", apiMiddleware, (req, res) => {
+router.get("/:name", apiMiddleware, (req, res) => {
   const data = service.find(req.params.name, req.query);
   res.json(data);
 });
 
 /** GET /:name/:id — devuelve 404 si no existe */
-app.get("/:name/:id", apiMiddleware, (req, res) => {
+router.get("/:name/:id", apiMiddleware, (req, res) => {
   const data = service.findById(req.params.name, req.params.id, req.query);
   if (data === undefined) return res.status(404).json({});
   res.json(data);
 });
 
 /** POST /:name — crea nuevo item; devuelve 404 si la colección no existe */
-app.post("/:name", apiMiddleware, async (req, res) => {
+router.post("/:name", apiMiddleware, async (req, res) => {
   if (!isItem(req.body)) return res.status(400).json({});
   const data = await service.create(req.params.name, req.body);
   if (data === undefined) return res.status(404).json({});
@@ -373,7 +374,7 @@ app.post("/:name", apiMiddleware, async (req, res) => {
 });
 
 /** PUT /:name/:id — actualiza item completo; devuelve 404 si no existe */
-app.put("/:name/:id", apiMiddleware, async (req, res) => {
+router.put("/:name/:id", apiMiddleware, async (req, res) => {
   if (!isItem(req.body)) return res.status(400).json({});
   const data = await service.updateById(req.params.name, req.params.id, req.body);
   if (data === undefined) return res.status(404).json({});
@@ -381,7 +382,7 @@ app.put("/:name/:id", apiMiddleware, async (req, res) => {
 });
 
 /** PATCH /:name/:id — actualiza item parcialmente; devuelve 404 si no existe */
-app.patch("/:name/:id", apiMiddleware, async (req, res) => {
+router.patch("/:name/:id", apiMiddleware, async (req, res) => {
   if (!isItem(req.body)) return res.status(400).json({});
   const data = await service.patchById(req.params.name, req.params.id, req.body);
   if (data === undefined) return res.status(404).json({});
@@ -389,7 +390,7 @@ app.patch("/:name/:id", apiMiddleware, async (req, res) => {
 });
 
 /** DELETE /:name/:id — elimina item; devuelve 404 si no existe */
-app.delete("/:name/:id", apiMiddleware, async (req, res) => {
+router.delete("/:name/:id", apiMiddleware, async (req, res) => {
   const dependent = req.query._dependent;
   const data = await service.destroyById(req.params.name, req.params.id, dependent);
   if (data === undefined) return res.status(404).json({});
@@ -397,7 +398,8 @@ app.delete("/:name/:id", apiMiddleware, async (req, res) => {
 });
 
 /** Inicia el servidor en el puerto especificado */
+app.use("/api", router);
+
 app.listen(PORT, () => {
-  // eslint-disable-next-line no-console
   console.log(`API con JWT escuchando en http://localhost:${PORT}`);
 });
