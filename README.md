@@ -210,6 +210,9 @@ docker compose -f docker-compose.dev.yml logs -f
 # Detener servicios
 docker compose -f docker-compose.dev.yml down
 
+# Detener rápido con script
+./stop.sh --dev
+
 # Reconstruir imágenes
 docker compose -f docker-compose.dev.yml up -d --build
 
@@ -228,6 +231,9 @@ sudo docker compose -f docker-compose.prod.yml restart
 
 # Detener servicios
 sudo docker compose -f docker-compose.prod.yml down
+
+# Detener rápido con script
+./stop.sh --prod
 
 # Ver estado de contenedores
 sudo docker compose -f docker-compose.prod.yml ps
