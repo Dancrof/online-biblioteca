@@ -40,6 +40,18 @@ function generateId(collectionName) {
 const ROLE_ADMIN = "admin";
 const ROLE_USER = "user";
 
+function normalizeRole(role) {
+  return String(role || "").trim().toLowerCase();
+}
+
+function normalizeEmail(email) {
+  return String(email || "").trim().toLowerCase();
+}
+
+function isBcryptHash(value) {
+  return /^\$2[aby]\$\d{2}\$[./A-Za-z0-9]{53}$/.test(String(value || ""));
+}
+
 /**
  * Genera un JWT para un usuario (incluye rol)
  */
@@ -95,7 +107,9 @@ router.post("/auth/register", async (req, res) => {
       contrasena,
     } = req.body || {};
 
-    if (!cedula || !correo || !contrasena || !nombreCompleo || !apellidoCompleto) {
+    const correoNormalizado = normalizeEmail(correo);
+
+    if (!cedula || !correoNormalizado || !contrasena || !nombreCompleo || !apellidoCompleto) {
       return res
         .status(400)
         .json({ message: "Faltan campos obligatorios para el registro." });
@@ -103,7 +117,7 @@ router.post("/auth/register", async (req, res) => {
 
     const usuarios = db.data.usuarios || [];
     const existingCedula = usuarios.find((u) => u.cedula === cedula);
-    const existingCorreo = usuarios.find((u) => u.correo === correo);
+    const existingCorreo = usuarios.find((u) => normalizeEmail(u.correo) === correoNormalizado);
 
     if (existingCedula) {
       return res.status(400).json({
@@ -126,7 +140,7 @@ router.post("/auth/register", async (req, res) => {
       apellidoCompleto,
       telefono: telefono || "",
       dirreccion: dirreccion || "",
-      correo,
+      correo: correoNormalizado,
       contrasena: hashedPassword,
       estado: true,
       rol: ROLE_USER,
@@ -154,21 +168,34 @@ router.post("/auth/register", async (req, res) => {
 router.post("/auth/login", async (req, res) => {
   try {
     const { correo, contrasena } = req.body || {};
+    const correoNormalizado = normalizeEmail(correo);
 
-    if (!correo || !contrasena) {
+    if (!correoNormalizado || !contrasena) {
       return res
         .status(400)
         .json({ message: "Correo y contraseña son obligatorios." });
     }
 
     const usuarios = db.data.usuarios || [];
-    const user = usuarios.find((u) => u.correo === correo);
+    const user = usuarios.find((u) => normalizeEmail(u.correo) === correoNormalizado);
 
     if (!user || user.estado === false) {
       return res.status(401).json({ message: "Credenciales inválidas." });
     }
 
-    const isValidPassword = await bcrypt.compare(contrasena, user.contrasena);
+    let isValidPassword = false;
+    try {
+      isValidPassword = await bcrypt.compare(contrasena, user.contrasena);
+    } catch {
+      isValidPassword = false;
+    }
+
+    if (!isValidPassword && String(user.contrasena || "") === String(contrasena)) {
+      user.contrasena = await bcrypt.hash(contrasena, 10);
+      await db.write();
+      isValidPassword = true;
+    }
+
     if (!isValidPassword) {
       return res.status(401).json({ message: "Credenciales inválidas." });
     }
@@ -257,17 +284,51 @@ const ALLOWED_PROFILE_FIELDS = [
   "contrasena",
 ];
 
-/** PATCH /usuarios/:id — solo el propio usuario; campos permitidos y correo único */
-router.patch("/usuarios/:id", requireAuthForProfile, requireOwnUser, async (req, res) => {
+const ALLOWED_ADMIN_FIELDS = ["rol", "estado"];
+
+/** PATCH /usuarios/:id — propio usuario o admin para terceros */
+router.patch("/usuarios/:id", requireAuthForProfile, async (req, res) => {
   try {
     const usuarios = db.data.usuarios || [];
     const index = usuarios.findIndex((u) => String(u.id) === String(req.params.id));
     if (index === -1) return res.status(404).json({});
 
+    const isOwnUser = String(req.user?.id) === String(req.params.id);
+    const authUser = usuarios.find((u) => String(u.id) === String(req.user?.id));
+    if (!authUser) {
+      return res.status(401).json({ message: "Usuario autenticado no encontrado" });
+    }
+    const isAdmin = normalizeRole(authUser.rol) === ROLE_ADMIN;
+
+    if (!isOwnUser && !isAdmin) {
+      return res.status(403).json({ message: "No autorizado para este recurso" });
+    }
+
+    const allowedFields = isOwnUser
+      ? (isAdmin ? [...ALLOWED_PROFILE_FIELDS, ...ALLOWED_ADMIN_FIELDS] : ALLOWED_PROFILE_FIELDS)
+      : ALLOWED_ADMIN_FIELDS;
+
     const updates = {};
-    for (const key of ALLOWED_PROFILE_FIELDS) {
+    for (const key of allowedFields) {
       if (req.body[key] !== undefined) updates[key] = req.body[key];
     }
+
+    if (!isOwnUser && updates.rol !== undefined && ![ROLE_USER, ROLE_ADMIN].includes(normalizeRole(updates.rol))) {
+      return res.status(400).json({ message: "Rol inválido. Valores permitidos: user, admin." });
+    }
+
+    if (!isOwnUser && updates.estado !== undefined && typeof updates.estado !== "boolean") {
+      return res.status(400).json({ message: "Estado inválido. Debe ser booleano." });
+    }
+
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({ message: "No hay campos válidos para actualizar." });
+    }
+
+    if (updates.rol !== undefined) {
+      updates.rol = normalizeRole(updates.rol);
+    }
+
     if (updates.correo) {
       const otro = usuarios.find(
         (u) => String(u.correo) === String(updates.correo).toLowerCase() && String(u.id) !== String(req.params.id)
@@ -348,6 +409,70 @@ router.post("/alquileres", requireAuthForProfile, async (req, res) => {
   res.status(201).json(data);
 });
 
+/**
+ * POST /usuarios — creación segura de usuarios (hash de contraseña y correo normalizado)
+ */
+router.post("/usuarios", async (req, res) => {
+  try {
+    if (!isItem(req.body)) return res.status(400).json({});
+
+    const {
+      cedula,
+      nombreCompleo,
+      apellidoCompleto,
+      telefono,
+      dirreccion,
+      correo,
+      contrasena,
+      estado,
+      rol,
+    } = req.body || {};
+
+    const correoNormalizado = normalizeEmail(correo);
+    if (!cedula || !nombreCompleo || !apellidoCompleto || !correoNormalizado || !contrasena) {
+      return res.status(400).json({ message: "Faltan campos obligatorios para crear el usuario." });
+    }
+
+    const usuarios = db.data.usuarios || [];
+    const existingCedula = usuarios.find((u) => String(u.cedula) === String(cedula));
+    const existingCorreo = usuarios.find((u) => normalizeEmail(u.correo) === correoNormalizado);
+
+    if (existingCedula) {
+      return res.status(400).json({ message: "Ya existe un usuario con esta cédula." });
+    }
+    if (existingCorreo) {
+      return res.status(400).json({ message: "Ya existe un usuario con este correo electrónico." });
+    }
+
+    const rolNormalizado = normalizeRole(rol);
+    const hashedPassword = isBcryptHash(contrasena)
+      ? String(contrasena)
+      : await bcrypt.hash(String(contrasena), 10);
+
+    const newUser = {
+      id: generateId("usuarios"),
+      cedula: String(cedula),
+      nombreCompleo: String(nombreCompleo),
+      apellidoCompleto: String(apellidoCompleto),
+      telefono: String(telefono || ""),
+      dirreccion: String(dirreccion || ""),
+      correo: correoNormalizado,
+      contrasena: hashedPassword,
+      estado: typeof estado === "boolean" ? estado : true,
+      rol: rolNormalizado === ROLE_ADMIN ? ROLE_ADMIN : ROLE_USER,
+    };
+
+    usuarios.push(newUser);
+    await db.write();
+
+    const { contrasena: _, ...safe } = newUser;
+    return res.status(201).json(safe);
+  } catch (error) {
+    console.error("Error POST /usuarios:", error);
+    return res.status(500).json({ message: "Error interno del servidor." });
+  }
+});
+
 // API REST (libros, usuarios, alquileres) usando el Service de json-server
 function apiMiddleware(req, res, next) {
   const name = req.params.name;
@@ -376,6 +501,16 @@ router.post("/:name", apiMiddleware, async (req, res) => {
   const data = await service.create(req.params.name, req.body);
   if (data === undefined) return res.status(404).json({});
   res.status(201).json(data);
+});
+
+/**
+ * Bloquea PUT parcial en usuarios para evitar reemplazos completos accidentales.
+ * Para cambios de rol/estado usar PATCH /usuarios/:id.
+ */
+router.put("/usuarios/:id", (req, res) => {
+  return res.status(405).json({
+    message: "Método no permitido para usuarios. Usa PATCH /usuarios/:id para actualizar campos puntuales.",
+  });
 });
 
 /** PUT /:name/:id — actualiza item completo; devuelve 404 si no existe */

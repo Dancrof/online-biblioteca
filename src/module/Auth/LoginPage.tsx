@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
 import { useAuth } from "../../context/AuthContext";
+import { getUiActionErrorMessage } from "../../Services/Segurity/Errors";
 
 type LoginRedirectState = {
   from?: string;
@@ -35,8 +36,7 @@ export const LoginPage = () => {
       await login({ correo: email.trim().toLowerCase(), contrasena: password });
       navigate(returnTo, { replace: true });
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Error al iniciar sesión. Intenta de nuevo.";
+      const message = getUiActionErrorMessage(err, "No se pudo iniciar sesión. Intenta de nuevo.");
       setError(message);
     } finally {
       setSubmitting(false);

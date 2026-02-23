@@ -114,7 +114,7 @@ export const putUsuarioAdmin = async (
   payload: AdminUpdatePayload
 ): Promise<IUser | null> => {
   try {
-    const response = await api.put<IUser>(`/usuarios/${id}`, payload);
+    const response = await api.patch<IUser>(`/usuarios/${id}`, payload);
     return response.data;
   } catch (error) {
     if (error && typeof error === "object" && "response" in error) {

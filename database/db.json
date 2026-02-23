@@ -23,6 +23,18 @@
       "contrasena": "$2b$10$LsMDzaqSCSvsIltM8t46Ue/WgjKq8MeEHNEXfWCs6LkjoXDvsuFzO",
       "estado": true,
       "rol": "user"
+    },
+    {
+      "id": "4",
+      "cedula": "0999999999",
+      "nombreCompleo": "Bryan Andres",
+      "apellidoCompleto": "Caicedo Jimenez",
+      "telefono": "+593999999999",
+      "dirreccion": "Salinas y gustavo",
+      "correo": "bryan.admin@gmail.com",
+      "contrasena": "$2b$10$oTKoJxZ5/MEkPsr65guEC.90Vm3JY.4O9JhQd9NMsjXhooflqPveW",
+      "estado": true,
+      "rol": "admin"
     }
   ],
   "libros": [

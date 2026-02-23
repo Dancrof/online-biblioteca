@@ -6,6 +6,7 @@ import { getRents, deleteRent, extendRentDate } from '../../Services/RentService
 import { getUsers } from '../../Services/UserService';
 import type { IPaginate } from '../../interfaces/IPaginate';
 import { PaginationPage } from '../Pagination/PaginationPage';
+import { getAdminActionErrorMessage } from '../../Services/Segurity/Errors';
 
 type RentFilterForm = {
   busqueda: string;
@@ -208,8 +209,7 @@ export const RentsAdminPage = () => {
       await deleteRent(rent.id, rent.librosIds);
       await loadRents();
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : 'Error al eliminar el alquiler.';
+      const message = getAdminActionErrorMessage(err, 'Error al eliminar el alquiler.');
       setSubmitError(message);
     }
   };
@@ -237,7 +237,7 @@ export const RentsAdminPage = () => {
     try {
       const updatedRent = await extendRentDate(selectedRent.id, extensionDays);
       if (updatedRent) {
-        setSubmitSuccess(`Fecha del alquiler #${selectedRent.id} extendida ${extensionDays} días exitosamente.`);
+        setSubmitSuccess(`Se extendió ${extensionDays} días la fecha del alquiler #${selectedRent.id} correctamente.`);
         setShowExtendModal(false);
         setSelectedRent(null);
         await loadRents();
@@ -246,7 +246,7 @@ export const RentsAdminPage = () => {
         setSubmitError('No se pudo extender la fecha del alquiler.');
       }
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Error al extender la fecha.';
+      const message = getAdminActionErrorMessage(err, 'Error al extender la fecha.');
       setSubmitError(message);
     } finally {
       setExtending(false);

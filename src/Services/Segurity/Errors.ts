@@ -22,6 +22,113 @@ export const MSG_DUPLICATE_CEDULA = "Ya existe un usuario con esta cédula.";
  */
 export const MSG_DUPLICATE_CORREO = "Ya existe un usuario con este correo electrónico.";
 
+const getErrorMessage = (error: unknown): string => {
+  if (!(error instanceof Error)) return "";
+  return error.message || "";
+};
+
+/**
+ * Traduce errores de actualización de rol/estado en administración de usuarios.
+ */
+export const getAdminUpdateUserErrorMessage = (error: unknown): string => {
+  const message = getErrorMessage(error);
+
+  if (!message) return "No se pudo actualizar el rol/estado del usuario.";
+  if (message.includes("No autorizado para este recurso")) {
+    return "No tienes permisos para modificar este usuario.";
+  }
+  if (message.includes("Método no permitido para usuarios")) {
+    return "La actualización fue rechazada por el servidor. Intenta nuevamente.";
+  }
+  if (message.includes("No hay campos válidos para actualizar")) {
+    return "No se detectaron cambios válidos para guardar.";
+  }
+
+  return message;
+};
+
+/**
+ * Traduce errores de creación de usuarios en administración.
+ */
+export const getAdminCreateUserErrorMessage = (error: unknown): string => {
+  const message = getErrorMessage(error);
+
+  if (!message) return "No se pudo crear el usuario.";
+  if (message.includes("cédula")) {
+    return "La cédula ya está registrada.";
+  }
+  if (message.includes("correo")) {
+    return "El correo ya está registrado.";
+  }
+
+  return message;
+};
+
+/**
+ * Traduce errores de eliminación de usuarios en administración.
+ */
+export const getAdminDeleteUserErrorMessage = (error: unknown): string => {
+  const message = getErrorMessage(error);
+
+  if (!message) return "No se pudo eliminar el usuario.";
+  if (message.includes("No autorizado para este recurso")) {
+    return "No tienes permisos para eliminar este usuario.";
+  }
+
+  return message;
+};
+
+/**
+ * Traduce errores comunes de acciones de administración (crear/editar/eliminar).
+ */
+export const getAdminActionErrorMessage = (error: unknown, fallback: string): string => {
+  const message = getErrorMessage(error);
+
+  if (!message) return fallback;
+  if (message.includes("No autorizado para este recurso")) {
+    return "No tienes permisos para realizar esta acción.";
+  }
+  if (message.includes("Método no permitido")) {
+    return "La acción fue rechazada por el servidor. Intenta nuevamente.";
+  }
+
+  return message;
+};
+
+/**
+ * Traduce errores comunes para flujos de UI fuera de administración.
+ */
+export const getUiActionErrorMessage = (error: unknown, fallback: string): string => {
+  const message = getErrorMessage(error);
+
+  if (!message) return fallback;
+  if (message.includes("No autorizado para este recurso")) {
+    return "No tienes permisos para realizar esta acción.";
+  }
+  if (message.includes("Método no permitido")) {
+    return "La acción fue rechazada por el servidor. Intenta nuevamente.";
+  }
+
+  return message;
+};
+
+/**
+ * Traduce errores de creación de usuarios para flujos públicos.
+ */
+export const getCreateUserErrorMessage = (error: unknown): string => {
+  const message = getErrorMessage(error);
+
+  if (!message) return "No se pudo crear el usuario.";
+  if (message.includes("cédula")) {
+    return "La cédula ya está registrada.";
+  }
+  if (message.includes("correo")) {
+    return "El correo ya está registrado.";
+  }
+
+  return message;
+};
+
 /**
  * Comprueba si ya existe un usuario con la cédula o el correo indicados.
  * @param cedula - Cédula a validar

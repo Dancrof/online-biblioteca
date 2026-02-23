@@ -96,7 +96,6 @@ VITE_URL_API=https://tu-dominio.com/api
 
 # Puerto del backend
 PORT=4000
-NODE_ENV=production
 ```
 
 Genera un JWT secret seguro:
@@ -301,8 +300,9 @@ VITE_CLOUDINARY_UPLOAD_PRESET=tu_preset      # Cloudinary (opcional)
 ```env
 JWT_SECRET=tu_secret_super_seguro
 PORT=4000
-NODE_ENV=production
 ```
+
+`NODE_ENV` se define en `docker-compose`/`Dockerfile.api` para despliegue.
 
 ---
 

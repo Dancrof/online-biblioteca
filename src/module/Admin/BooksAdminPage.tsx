@@ -6,6 +6,7 @@ import { PaginationPage } from '../Pagination/PaginationPage';
 import { getBooks, postBook, putBook, deleteBook } from '../../Services/BookService';
 import { CATEGORIAS, IDIOMAS } from '../../Config/constant';
 import { useCloudinaryUpload } from '../../hooks/useCloudinaryUpload';
+import { getAdminActionErrorMessage } from '../../Services/Segurity/Errors';
 
 type BookFormValues = Omit<Book, 'id'>;
 
@@ -129,14 +130,14 @@ export const BooksAdminPage = () => {
           setSubmitError('No se pudo actualizar el libro.');
           return;
         }
-        setSubmitSuccess(`Libro "${values.titulo}" actualizado exitosamente.`);
+        setSubmitSuccess(`Se actualizó el libro "${values.titulo}" correctamente.`);
       } else {
         const created = await postBook(values);
         if (!created) {
           setSubmitError('No se pudo crear el libro.');
           return;
         }
-        setSubmitSuccess(`Libro "${values.titulo}" creado exitosamente.`);
+        setSubmitSuccess(`Se creó el libro "${values.titulo}" correctamente.`);
       }
       
       // Limpiar formulario y resetear estado
@@ -149,8 +150,7 @@ export const BooksAdminPage = () => {
         setSubmitSuccess(null);
       }, 5000);
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : 'Error al guardar el libro. Intenta de nuevo.';
+      const message = getAdminActionErrorMessage(err, 'Error al guardar el libro. Intenta de nuevo.');
       setSubmitError(message);
     }
   };
@@ -160,16 +160,22 @@ export const BooksAdminPage = () => {
    */
   const handleDelete = async (book: Book) => {
     if (!window.confirm(`¿Eliminar el libro "${book.titulo}"?`)) return;
-    const ok = await deleteBook(book.id);
-    if (ok) {
-      if (selectedBook?.id === book.id) {
-        setSelectedBook(null);
+    setSubmitError(null);
+    try {
+      const ok = await deleteBook(book.id);
+      if (ok) {
+        if (selectedBook?.id === book.id) {
+          setSelectedBook(null);
+        }
+        // Si la página actual queda vacía tras borrar, retroceder una página si es posible
+        const nextPage = books.length === 1 && currentPage > 1 ? currentPage - 1 : currentPage;
+        loadPage(nextPage);
+      } else {
+        setSubmitError('No se pudo eliminar el libro.');
       }
-      // Si la página actual queda vacía tras borrar, retroceder una página si es posible
-      const nextPage = books.length === 1 && currentPage > 1 ? currentPage - 1 : currentPage;
-      loadPage(nextPage);
-    } else {
-      setSubmitError('No se pudo eliminar el libro.');
+    } catch (err) {
+      const message = getAdminActionErrorMessage(err, 'Error al eliminar el libro.');
+      setSubmitError(message);
     }
   };
 

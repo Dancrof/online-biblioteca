@@ -4,6 +4,11 @@ import type { IUser } from '../../interfaces/IUser';
 import type { IPaginate } from '../../interfaces/IPaginate';
 import { PaginationPage } from '../Pagination/PaginationPage';
 import { getUsers, deleteUser, putUsuarioAdmin, postUser } from '../../Services/UserService';
+import {
+  getAdminCreateUserErrorMessage,
+  getAdminDeleteUserErrorMessage,
+  getAdminUpdateUserErrorMessage,
+} from '../../Services/Segurity/Errors';
 
 type UserFormValues = Omit<IUser, 'id'>;
 type UserEditValues = Pick<IUser, 'rol' | 'estado'>;
@@ -133,7 +138,7 @@ export const UsersAdminPage = () => {
       reset(emptyUser);
       await loadUsers();
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Error al crear el usuario.';
+      const message = getAdminCreateUserErrorMessage(err);
       setSubmitError(message);
     }
   };
@@ -150,7 +155,7 @@ export const UsersAdminPage = () => {
       await loadUsers();
       setSelectedUser(null);
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Error al actualizar el usuario.';
+      const message = getAdminUpdateUserErrorMessage(err);
       setSubmitError(message);
     }
   };
@@ -178,7 +183,7 @@ export const UsersAdminPage = () => {
         setSubmitError('No se pudo eliminar el usuario.');
       }
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Error al eliminar el usuario.';
+      const message = getAdminDeleteUserErrorMessage(err);
       setSubmitError(message);
     }
   };

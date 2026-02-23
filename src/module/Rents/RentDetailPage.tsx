@@ -6,6 +6,7 @@ import { getBookById } from '../../Services/BookService';
 import type { IRent } from '../../interfaces/IRent';
 import type { Book } from '../../interfaces/IBook';
 import { useAuth } from '../../context/AuthContext';
+import { getUiActionErrorMessage } from '../../Services/Segurity/Errors';
 import './Styles/RentPage.css';
 
 /**
@@ -104,9 +105,9 @@ export default function RentDetailPage() {
     setDeleting(true);
     deleteRent(rent.id, rent.librosIds ?? [])
       .then(() => navigate('/rents'))
-      .catch(() => {
+      .catch((error) => {
         setDeleting(false);
-        window.alert('No se pudo eliminar el alquiler. Intenta de nuevo.');
+        window.alert(getUiActionErrorMessage(error, 'No se pudo eliminar el alquiler. Intenta de nuevo.'));
       });
   };
 
@@ -130,7 +131,7 @@ export default function RentDetailPage() {
         setExtendError('No se pudo extender la fecha del alquiler.');
       }
     } catch (error) {
-      setExtendError(error instanceof Error ? error.message : 'Error al extender la fecha.');
+      setExtendError(getUiActionErrorMessage(error, 'No se pudo extender la fecha.'));
     } finally {
       setExtending(false);
     }

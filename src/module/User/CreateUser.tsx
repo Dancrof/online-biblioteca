@@ -5,6 +5,7 @@ import type { IUser } from '../../interfaces/IUser';
 import './Styles/CreateUser.css';
 import { postUser } from '../../Services/UserService';
 import { encoderPassword } from '../../Services/Segurity/Encrypt';
+import { getCreateUserErrorMessage } from '../../Services/Segurity/Errors';
 import {
   CEDULA_REGEX,
   EMAIL_REGEX,
@@ -72,8 +73,7 @@ export const CreateUser = () => {
         setSubmitError('No se pudo crear el usuario.');
       }
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : 'Error al guardar el usuario. Intenta de nuevo.';
+      const message = getCreateUserErrorMessage(err);
       setSubmitError(message);
     }
   };

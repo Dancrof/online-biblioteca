@@ -8,6 +8,7 @@ import {
   PHONE_MAX_LENGTH,
   PHONE_REGEX,
 } from "../../Config/constant";
+import { getUiActionErrorMessage } from "../../Services/Segurity/Errors";
 
 export const RegisterPage = () => {
   const navigate = useNavigate();
@@ -77,11 +78,10 @@ export const RegisterPage = () => {
       });
       navigate("/auth", {
         replace: true,
-        state: { success: "Usuario registrado con éxito. Ahora puedes iniciar sesión." },
+        state: { success: "Se registró el usuario correctamente. Ahora puedes iniciar sesión." },
       });
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Error al registrarse. Intenta de nuevo.";
+      const message = getUiActionErrorMessage(err, "No se pudo completar el registro. Intenta de nuevo.");
       setError(message);
     } finally {
       setSubmitting(false);
