@@ -13,6 +13,7 @@ type AuthContextValue = {
   user: AuthUser | null;
   token: string | null;
   isAuthenticated: boolean;
+  isAuthReady: boolean;
   login: (payload: LoginPayload) => Promise<void>;
   logout: () => void;
   updateUser: (partial: Partial<AuthUser>) => void;
@@ -49,19 +50,28 @@ function saveToStorage(auth: StoredAuth | null) {
   }
 }
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [token, setToken] = useState<string | null>(null);
+function sanitizeStoredUser(user: AuthUser): AuthUser {
+  const safeUser = { ...user };
+  if (safeUser.rol !== "admin" && safeUser.rol !== "user") safeUser.rol = "user";
+  return safeUser;
+}
 
-  useEffect(() => {
-    const stored = loadFromStorage();
-    if (stored?.token && stored.user) {
-      const u = stored.user;
-      if (u.rol !== "admin" && u.rol !== "user") u.rol = "user";
-      setUser(u);
-      setToken(stored.token);
-    }
-  }, []);
+function getInitialAuth(): { user: AuthUser | null; token: string | null } {
+  const stored = loadFromStorage();
+  if (!stored?.token || !stored.user) {
+    return { user: null, token: null };
+  }
+  return {
+    user: sanitizeStoredUser(stored.user),
+    token: stored.token,
+  };
+}
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [initialAuth] = useState(() => getInitialAuth());
+  const [user, setUser] = useState<AuthUser | null>(initialAuth.user);
+  const [token, setToken] = useState<string | null>(initialAuth.token);
+  const [isAuthReady] = useState(true);
 
   const handleLogin = useCallback(async (payload: LoginPayload) => {
     const res: AuthResponse = await loginService(payload);
@@ -91,11 +101,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       user,
       token,
       isAuthenticated: Boolean(token && user),
+      isAuthReady,
       login: handleLogin,
       logout: handleLogout,
       updateUser,
     }),
-    [user, token, handleLogin, handleLogout, updateUser]
+    [user, token, isAuthReady, handleLogin, handleLogout, updateUser]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

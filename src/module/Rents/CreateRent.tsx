@@ -33,7 +33,7 @@ function getDefaultValues(): IRent {
     librosIds: [],
     fechaInicio: getTodayString(),
     fechaFin: '',
-    estado: false,
+    estado: true,
   };
 }
 

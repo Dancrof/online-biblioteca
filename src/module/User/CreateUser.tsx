@@ -5,7 +5,12 @@ import type { IUser } from '../../interfaces/IUser';
 import './Styles/CreateUser.css';
 import { postUser } from '../../Services/UserService';
 import { encoderPassword } from '../../Services/Segurity/Encrypt';
-import { EMAIL_REGEX } from '../../Config/constant';
+import {
+  CEDULA_REGEX,
+  EMAIL_REGEX,
+  PHONE_MAX_LENGTH,
+  PHONE_REGEX,
+} from '../../Config/constant';
 
 /**
  * Formulario de creación de usuario
@@ -104,9 +109,15 @@ export const CreateUser = () => {
                     type="text"
                     className={`form-control ${errors.cedula ? 'is-invalid' : ''}`}
                     placeholder="Ej: 0999999999"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    maxLength={10}
                     {...register('cedula', {
                       required: 'La cédula es obligatoria',
-                      minLength: { value: 10, message: 'Mínimo 10 caracteres' },
+                      pattern: {
+                        value: CEDULA_REGEX,
+                        message: 'La cédula debe tener exactamente 10 números',
+                      },
                     })}
                   />
                   {errors.cedula && (
@@ -126,10 +137,16 @@ export const CreateUser = () => {
                   <input
                     type="text"
                     className={`form-control ${errors.telefono ? 'is-invalid' : ''}`}
-                    placeholder="Ej: 0999999999"
+                    placeholder="Ej: +593979979736"
+                    inputMode="tel"
+                    pattern="\+?[0-9]{1,12}"
+                    maxLength={PHONE_MAX_LENGTH}
                     {...register('telefono', {
                       required: 'El teléfono es obligatorio',
-                      minLength: { value: 10, message: 'Mínimo 10 caracteres' },
+                      pattern: {
+                        value: PHONE_REGEX,
+                        message: 'Teléfono no válido. Ej: +593979979736',
+                      },
                     })}
                   />
                   {errors.telefono && (

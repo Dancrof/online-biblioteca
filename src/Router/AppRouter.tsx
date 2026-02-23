@@ -1,4 +1,4 @@
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router'
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router'
 import BookListPage from '../module/Books/BookListPage'
 import { Suspense, type JSX } from 'react'
 import React from 'react'
@@ -26,16 +26,24 @@ const UsersAdminPage = React.lazy(() => import('../module/Admin/UsersAdminPage')
 
 /* Componente de enrutamiento principal de la aplicación */
 const RequireAuth = ({ children }: { children: JSX.Element }) => {
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, isAuthReady } = useAuth();
+    const location = useLocation();
+    if (!isAuthReady) {
+        return <LoadingPage />;
+    }
     if (!isAuthenticated) {
-        return <Navigate to="/auth" replace />;
+        const from = `${location.pathname}${location.search}${location.hash}`;
+        return <Navigate to="/auth" replace state={{ from }} />;
     }
     return children;
 };
 
 /** Componente que redirige a /books si el usuario ya está autenticado */
 const RedirectIfAuthenticated = ({ children }: { children: JSX.Element }) => {
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, isAuthReady } = useAuth();
+    if (!isAuthReady) {
+        return <LoadingPage />;
+    }
     if (isAuthenticated) {
         return <Navigate to="/books" replace />;
     }
@@ -45,9 +53,14 @@ const RedirectIfAuthenticated = ({ children }: { children: JSX.Element }) => {
 
 /* Componente que protege rutas exclusivas para administradores */
 const RequireAdmin = ({ children }: { children: JSX.Element }) => {
-    const { isAuthenticated, user } = useAuth();
+    const { isAuthenticated, user, isAuthReady } = useAuth();
+    const location = useLocation();
+    if (!isAuthReady) {
+        return <LoadingPage />;
+    }
     if (!isAuthenticated) {
-        return <Navigate to="/auth" replace />;
+        const from = `${location.pathname}${location.search}${location.hash}`;
+        return <Navigate to="/auth" replace state={{ from }} />;
     }
     if (user?.rol !== ROLE_ADMIN) {
         return <Navigate to="/books" replace />;

@@ -5,6 +5,7 @@ import { getUsers } from '../../Services/UserService';
 import { getBookById } from '../../Services/BookService';
 import type { IRent } from '../../interfaces/IRent';
 import type { Book } from '../../interfaces/IBook';
+import { useAuth } from '../../context/AuthContext';
 import './Styles/RentPage.css';
 
 /**
@@ -28,6 +29,7 @@ const formatDate = (dateStr: string): string => {
 export default function RentDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { user: authUser } = useAuth();
   const [rent, setRent] = useState<IRent | null>(null);
   const [userName, setUserName] = useState<string>('');
   const [books, setBooks] = useState<Book[]>([]);
@@ -60,6 +62,15 @@ export default function RentDetailPage() {
           setRent(null);
           return;
         }
+
+        const isAdmin = authUser?.rol === 'admin';
+        const isOwner = authUser?.id != null && Number(authUser.id) === Number(data.usuarioId);
+        if (!isAdmin && !isOwner) {
+          setNotFound(true);
+          setRent(null);
+          return;
+        }
+
         setRent(data);
         return data;
       })
@@ -81,13 +92,14 @@ export default function RentDetailPage() {
           .then((results) => setBooks(results.filter((b): b is Book => b != null)));
       })
       .finally(() => setLoading(false));
-  }, [id]);
+  }, [id, authUser?.id, authUser?.rol]);
 
   /**
    * Manejador para eliminar el alquiler
    */
   const handleDelete = () => {
     if (!rent) return;
+    if (authUser?.rol !== 'admin') return;
     if (!window.confirm('¿Eliminar este alquiler? Esta acción no se puede deshacer.')) return;
     setDeleting(true);
     deleteRent(rent.id, rent.librosIds ?? [])
@@ -208,21 +220,23 @@ export default function RentDetailPage() {
                 Extender fecha
               </button>
             )}
-            <button
-              type="button"
-              className="btn btn-danger"
-              onClick={handleDelete}
-              disabled={deleting}
-            >
-              {deleting ? (
-                <>
-                  <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" />
-                  Eliminando...
-                </>
-              ) : (
-                'Eliminar alquiler'
-              )}
-            </button>
+            {authUser?.rol === 'admin' && (
+              <button
+                type="button"
+                className="btn btn-danger"
+                onClick={handleDelete}
+                disabled={deleting}
+              >
+                {deleting ? (
+                  <>
+                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" />
+                    Eliminando...
+                  </>
+                ) : (
+                  'Eliminar alquiler'
+                )}
+              </button>
+            )}
           </div>
         </header>
 

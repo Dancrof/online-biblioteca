@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
 import './Styles/RentPage.css';
 import { getRents } from '../../Services/RentService';
-import { getUsers } from '../../Services/UserService';
 import type { IRent } from '../../interfaces/IRent';
 import { PaginationPage } from '../Pagination/PaginationPage';
 import type { IPaginate } from '../../interfaces/IPaginate';
+import { useAuth } from '../../context/AuthContext';
 
 /**
  * Formatea una fecha a un formato legible
@@ -26,6 +26,10 @@ const formatDate = (dateStr: string): string => {
  * @returns Componente RentListPage
  */
 export default function RentListPage() {
+  const { user: authUser } = useAuth();
+  const [allUserRents, setAllUserRents] = useState<IRent[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPage] = useState(8);
   const [paginateRents, setPaginateRents] = useState<IPaginate<IRent>>({
     data: [],
     first: 1,
@@ -35,39 +39,85 @@ export default function RentListPage() {
     pages: 1,
     items: 0
   });
-  const [userNames, setUserNames] = useState<Record<number, string>>({});
+  /**
+   * Construye una paginación a partir de una lista en memoria
+   */
+  const buildPaginate = (all: IRent[], page: number, limit: number): IPaginate<IRent> => {
+    const items = all.length;
+    const pages = Math.max(1, Math.ceil(items / limit));
+    const safePage = Math.max(1, Math.min(page, pages));
+    const start = (safePage - 1) * limit;
+    const data = all.slice(start, start + limit);
+    return {
+      data,
+      first: 1,
+      prev: safePage > 1 ? safePage - 1 : null,
+      next: safePage < pages ? safePage + 1 : pages,
+      last: pages,
+      pages,
+      items,
+    };
+  };
 
   /**
    * Carga una página de alquileres
    * @param page - Número de página
    */
   const loadPage = (page: number) => {
-    getRents(page).then((data) => {
-      setPaginateRents(data);
-    });
+    setCurrentPage(page);
+    setPaginateRents(buildPaginate(allUserRents, page, perPage));
   };
 
   /**
-   * Efecto para cargar la primera página de alquileres
+   * Efecto para cargar todos los alquileres del usuario logueado
    */
   useEffect(() => {
-    loadPage(1);
-  }, []);
-
-  /**
-   * Efecto para obtener los usuarios
-   */
-  useEffect(() => {
-    getUsers().then((users) => {
-      if (!users) return;
-      const map: Record<number, string> = {};
-      users.forEach((u) => {
-        const id = typeof u.id === 'string' ? parseInt(u.id, 10) : u.id;
-        map[id] = `${u.nombreCompleo} ${u.apellidoCompleto}`.trim();
+    if (!authUser?.id) {
+      queueMicrotask(() => {
+        setAllUserRents([]);
+        setCurrentPage(1);
+        setPaginateRents(buildPaginate([], 1, perPage));
       });
-      setUserNames(map);
-    });
-  }, []);
+      return;
+    }
+
+    let mounted = true;
+    const userId = Number(authUser.id);
+
+    const loadUserRents = async () => {
+      try {
+        const perRequest = 100;
+        let page = 1;
+        let totalPages = 1;
+        const allRents: IRent[] = [];
+
+        do {
+          const res = await getRents(page, perRequest);
+          allRents.push(...(res.data ?? []));
+          totalPages = Math.max(1, res.last ?? res.pages ?? 1);
+          page += 1;
+        } while (page <= totalPages);
+
+        const onlyUserRents = allRents.filter((rent) => Number(rent.usuarioId) === userId);
+
+        if (!mounted) return;
+        setAllUserRents(onlyUserRents);
+        setCurrentPage(1);
+        setPaginateRents(buildPaginate(onlyUserRents, 1, perPage));
+      } catch {
+        if (!mounted) return;
+        setAllUserRents([]);
+        setCurrentPage(1);
+        setPaginateRents(buildPaginate([], 1, perPage));
+      }
+    };
+
+    void loadUserRents();
+
+    return () => {
+      mounted = false;
+    };
+  }, [authUser?.id, perPage]);
 
   /**
    * Renderizado del componente
@@ -103,7 +153,7 @@ export default function RentListPage() {
                     <div className="rent-card__row">
                       <span className="rent-card__label">Usuario:</span>
                       <span className="rent-card__value">
-                        {userNames[rent.usuarioId] ?? `ID ${rent.usuarioId}`}
+                        Tú
                       </span>
                     </div>
 
@@ -144,6 +194,7 @@ export default function RentListPage() {
           next={paginateRents.next}
           last={paginateRents.last}
           pages={paginateRents.pages}
+          currentPage={currentPage}
           onPageChange={loadPage}
         />
         </div>

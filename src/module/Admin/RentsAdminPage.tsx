@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import type { IRent } from '../../interfaces/IRent';
 import type { IUser } from '../../interfaces/IUser';
@@ -8,12 +8,14 @@ import type { IPaginate } from '../../interfaces/IPaginate';
 import { PaginationPage } from '../Pagination/PaginationPage';
 
 type RentFilterForm = {
-  cedula: string;
+  busqueda: string;
+  estado: 'todos' | 'activos' | 'cerrados';
   soloActivos: boolean;
 };
 
 const defaultFilters: RentFilterForm = {
-  cedula: '',
+  busqueda: '',
+  estado: 'todos',
   soloActivos: false,
 };
 
@@ -48,7 +50,7 @@ export const RentsAdminPage = () => {
   /**
    * Obtener información del usuario por ID
    */
-  const getUserInfo = (usuarioId: number): { cedula: string; nombre: string } => {
+  const getUserInfo = useCallback((usuarioId: number): { cedula: string; nombre: string } => {
     // Intentar encontrar por ID (considerando posibles inconsistencias de tipo)
     const user = users.find((u) => {
       const userId = typeof u.id === 'string' ? parseInt(u.id, 10) : u.id;
@@ -62,7 +64,7 @@ export const RentsAdminPage = () => {
       };
     }
     return { cedula: `Usuario ${usuarioId}`, nombre: '-' };
-  };
+  }, [users]);
 
   /**
    * Construye una paginación a partir de una lista en memoria
@@ -90,8 +92,19 @@ export const RentsAdminPage = () => {
   const loadRents = async () => {
     try {
       setLoading(true);
-      const res = await getRents(1, 100);
-      setRents(res.data);
+      const perRequest = 100;
+      let page = 1;
+      let totalPages = 1;
+      const allRents: IRent[] = [];
+
+      do {
+        const res = await getRents(page, perRequest);
+        allRents.push(...(res.data ?? []));
+        totalPages = Math.max(1, res.last ?? res.pages ?? 1);
+        page += 1;
+      } while (page <= totalPages);
+
+      setRents(allRents);
     } catch {
       setRents([]);
     } finally {
@@ -120,27 +133,42 @@ export const RentsAdminPage = () => {
    * Filtrado en memoria según el formulario.
    */
   const filteredRents = useMemo(() => {
+    const normalizedSearch = filters.busqueda.trim().toLowerCase();
+
     return rents.filter((rent) => {
-      if (filters.cedula) {
-        // Buscar el usuario por cédula
-        const user = users.find((u) => u.cedula === filters.cedula);
-        if (!user || rent.usuarioId !== user.id) {
+      const userInfo = getUserInfo(rent.usuarioId);
+
+      if (normalizedSearch) {
+        const searchMatch =
+          userInfo.cedula.toLowerCase().includes(normalizedSearch) ||
+          userInfo.nombre.toLowerCase().includes(normalizedSearch) ||
+          String(rent.id).includes(normalizedSearch);
+        if (!searchMatch) {
           return false;
         }
       }
+
+      if (filters.estado === 'activos' && !rent.estado) {
+        return false;
+      }
+      if (filters.estado === 'cerrados' && rent.estado) {
+        return false;
+      }
+
       if (filters.soloActivos && !rent.estado) {
         return false;
       }
+
       return true;
     });
-  }, [rents, users, filters]);
+  }, [rents, filters, getUserInfo]);
 
   /**
    * Si cambian filtros, volver a la primera página
    */
   useEffect(() => {
     setCurrentPage(1);
-  }, [filters.cedula, filters.soloActivos]);
+  }, [filters.busqueda, filters.estado, filters.soloActivos]);
 
   /**
    * Paginación (reutiliza PaginationPage)
@@ -250,23 +278,38 @@ export const RentsAdminPage = () => {
               <form>
                 <div className="mb-3">
                   <label className="form-label fw-semibold">
-                    Cédula del usuario
+                    Buscar alquiler
                   </label>
                   <input
                     type="text"
                     className="form-control"
-                    placeholder="Ej: 1234567890"
-                    maxLength={10}
-                    {...register('cedula', {
+                    placeholder="Cédula, nombre o ID de alquiler"
+                    maxLength={50}
+                    {...register('busqueda', {
                       maxLength: {
-                        value: 10,
-                        message: 'Máximo 10 caracteres'
+                        value: 50,
+                        message: 'Máximo 50 caracteres'
                       }
                     })}
                   />
                   <small className="text-muted">
-                    Deja vacío para ver todos los usuarios. Máximo 10 caracteres.
+                    Deja vacío para ver todos los alquileres.
                   </small>
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label fw-semibold" htmlFor="rents-estado">
+                    Estado
+                  </label>
+                  <select
+                    id="rents-estado"
+                    className="form-select"
+                    {...register('estado')}
+                  >
+                    <option value="todos">Todos</option>
+                    <option value="activos">Activos</option>
+                    <option value="cerrados">Cerrados</option>
+                  </select>
                 </div>
 
                 <div className="mb-3 form-check form-switch">

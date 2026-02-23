@@ -1,15 +1,27 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import { useAuth } from "../../context/AuthContext";
+
+type LoginRedirectState = {
+  from?: string;
+  success?: string;
+};
 
 export const LoginPage = () => {
 
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const locationState = location.state as LoginRedirectState | null;
+  const returnToFromState = locationState?.from;
+  const registerSuccess = locationState?.success || null;
+  const returnToFromQuery = new URLSearchParams(location.search).get('returnTo') || undefined;
+  const returnTo = returnToFromState || returnToFromQuery || '/books';
 
   /**
    * Maneja el envío del formulario de inicio de sesión
@@ -21,7 +33,7 @@ export const LoginPage = () => {
     setSubmitting(true);
     try {
       await login({ correo: email.trim().toLowerCase(), contrasena: password });
-      navigate("/books", { replace: true });
+      navigate(returnTo, { replace: true });
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Error al iniciar sesión. Intenta de nuevo.";
@@ -36,6 +48,13 @@ export const LoginPage = () => {
       <div className="card shadow-lg border-0" style={{ width: "100%", maxWidth: 420 }}>
         <div className="card-body p-4">
           <h3 className="text-center mb-4 fw-bold">Iniciar sesión</h3>
+
+          {registerSuccess && (
+            <div className="alert alert-success py-2" role="alert">
+              <i className="bi bi-check-circle-fill me-2" />
+              {registerSuccess}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit}>
             {/* Email */}

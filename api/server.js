@@ -14,7 +14,7 @@ const app = express();
 const router = express.Router();
 const PORT = process.env.PORT || 4000;
 const JWT_SECRET = process.env.JWT_SECRET || "dev_secret_change_me";
-const JWT_EXPIRES_IN = "2h";
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "7h";
 
 app.use(cors());
 app.use(express.json());
@@ -314,6 +314,11 @@ function optionalAuth(req, res, next) {
 router.get("/alquileres", optionalAuth, (req, res) => {
   const query = { ...req.query };
   if (req.user?.id) {
+    const isAdmin = req.user?.rol === ROLE_ADMIN;
+    if (isAdmin) {
+      const data = service.find("alquileres", query);
+      return res.json(data);
+    }
     // Filtrar por usuarioId del token (comparar como número)
     const userId = Number(req.user.id);
     const alquileres = db.data.alquileres || [];

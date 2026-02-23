@@ -1,18 +1,6 @@
 {
   "usuarios": [
     {
-      "id": "1",
-      "cedula": "0999999999",
-      "nombreCompleo": "Juan Carlos",
-      "apellidoCompleto": "Quintero Zabaleta",
-      "telefono": "0999999999",
-      "dirreccion": "Sucre y Maldonado",
-      "correo": "juanquintero@example.com",
-      "contrasena": "password123",
-      "estado": true,
-      "rol": "user"
-    },
-    {
       "id": "2",
       "cedula": "0123456789",
       "nombreCompleo": "melody",
@@ -23,6 +11,18 @@
       "contrasena": "$2b$10$H0ee9HqFJScClndfDcmZB.25M5bROzV/cy1S1Lm1M5f5oN2w.WWtS",
       "estado": true,
       "rol": "admin"
+    },
+    {
+      "id": "3",
+      "cedula": "0850054347",
+      "nombreCompleo": "Pilar",
+      "apellidoCompleto": "Caicedo",
+      "telefono": "0999999999",
+      "dirreccion": "Ecuador",
+      "correo": "pilar@gmai.com",
+      "contrasena": "$2b$10$LsMDzaqSCSvsIltM8t46Ue/WgjKq8MeEHNEXfWCs6LkjoXDvsuFzO",
+      "estado": true,
+      "rol": "user"
     }
   ],
   "libros": [
@@ -37,7 +37,7 @@
       "portada": "https://covers.openlibrary.org/b/id/10523358-L.jpg",
       "sinopsis": "La historia de la familia Buendia en Macondo.",
       "criticas": "Obra maestra del realismo magico.",
-      "disponible": false
+      "disponible": true
     },
     {
       "id": "2",
@@ -703,16 +703,5 @@
       "disponible": true
     }
   ],
-  "alquileres": [
-    {
-      "id": "8761",
-      "usuarioId": 2,
-      "librosIds": [
-        1
-      ],
-      "fechaInicio": "2026-02-16",
-      "fechaFin": "2026-02-20",
-      "estado": true
-    }
-  ]
+  "alquileres": []
 }
