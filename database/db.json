@@ -14,27 +14,27 @@
     },
     {
       "id": "3",
-      "cedula": "0850054347",
-      "nombreCompleo": "Pilar",
+      "cedula": "0999999999",
+      "nombreCompleo": "Bryan",
       "apellidoCompleto": "Caicedo",
-      "telefono": "0999999999",
-      "dirreccion": "Ecuador",
-      "correo": "pilar@gmai.com",
-      "contrasena": "$2b$10$LsMDzaqSCSvsIltM8t46Ue/WgjKq8MeEHNEXfWCs6LkjoXDvsuFzO",
+      "telefono": "+593999999999",
+      "dirreccion": "sucre",
+      "correo": "admin@example.com",
+      "contrasena": "$2b$10$cT20TZgGKxRhqw9gMZ/hSOJ8VmbENQ1LNzH6exNDr2C6W5PUBzdum",
       "estado": true,
-      "rol": "user"
+      "rol": "admin"
     },
     {
       "id": "4",
-      "cedula": "0999999999",
-      "nombreCompleo": "Bryan Andres",
-      "apellidoCompleto": "Caicedo Jimenez",
-      "telefono": "+593999999999",
-      "dirreccion": "Salinas y gustavo",
-      "correo": "bryan.admin@gmail.com",
-      "contrasena": "$2b$10$oTKoJxZ5/MEkPsr65guEC.90Vm3JY.4O9JhQd9NMsjXhooflqPveW",
+      "cedula": "0987678987",
+      "nombreCompleo": "Dario",
+      "apellidoCompleto": "Cajiado",
+      "telefono": "+593978765678",
+      "dirreccion": "quito",
+      "correo": "user@example.com",
+      "contrasena": "$2b$10$xSUUAOhwx16yvSWudgVX1OUQ6Cj4gY7cGpfrPg8seSuohpTaDYQvO",
       "estado": true,
-      "rol": "admin"
+      "rol": "user"
     }
   ],
   "libros": [

@@ -341,12 +341,12 @@ PORT=4000
 ## 👥 Usuarios por Defecto
 
 ### Administrador
-- Email: `admin@biblioteca.com`
-- Password: `admin123`
+- Email: `admin@example.com`
+- Password: `123456`
 
 ### Usuario Regular
-- Email: `user@biblioteca.com`
-- Password: `user123`
+- Email: `user@example.com`
+- Password: `123456`
 
 ---
 
