@@ -9,6 +9,13 @@ import {
   getAdminDeleteUserErrorMessage,
   getAdminUpdateUserErrorMessage,
 } from '../../Services/Segurity/Errors';
+import { encoderPassword } from '../../Services/Segurity/Encrypt';
+import {
+  CEDULA_REGEX,
+  EMAIL_REGEX,
+  PHONE_MAX_LENGTH,
+  PHONE_REGEX,
+} from '../../Config/constant';
 
 type UserFormValues = Omit<IUser, 'id'>;
 type UserEditValues = Pick<IUser, 'rol' | 'estado'>;
@@ -133,7 +140,19 @@ export const UsersAdminPage = () => {
   const onCreateSubmit = async (data: UserFormValues) => {
     setSubmitError(null);
     try {
-      await postUser(data);
+      const body = {
+        cedula: data.cedula.trim(),
+        nombreCompleo: data.nombreCompleo.trim(),
+        apellidoCompleto: data.apellidoCompleto.trim(),
+        telefono: data.telefono.trim(),
+        dirreccion: data.dirreccion.trim(),
+        correo: data.correo.trim().toLowerCase(),
+        contrasena: await encoderPassword(data.contrasena),
+        estado: data.estado,
+        rol: data.rol,
+      };
+
+      await postUser(body);
       setIsCreating(false);
       reset(emptyUser);
       await loadUsers();
@@ -199,7 +218,7 @@ export const UsersAdminPage = () => {
   return (
     <div className="admin-panel">
       <div className="admin-panel__container">
-        <h1>Gestión de Usuarios</h1>
+        <h1>Gestión de usuarios</h1>
 
         {submitError && (
           <div className="alert alert-danger" role="alert">
@@ -212,7 +231,7 @@ export const UsersAdminPage = () => {
           <div className="col-lg-4">
             <div className="card">
               <div className="card-header">
-                <h5>{isCreating ? 'Nuevo Usuario' : selectedUser ? 'Editar Rol/Estado' : 'Seleccionar o Crear'}</h5>
+                <h5>{isCreating ? 'Nuevo usuario' : selectedUser ? 'Editar rol/estado' : 'Seleccionar o crear'}</h5>
               </div>
               <div className="card-body">
                 {isCreating ? (
@@ -221,10 +240,18 @@ export const UsersAdminPage = () => {
                       <label className="form-label">Cédula</label>
                       <input
                         {...register('cedula', {
-                          required: 'La cédula es requerida',
+                          required: 'La cédula es obligatoria',
+                          pattern: {
+                            value: CEDULA_REGEX,
+                            message: 'La cédula debe tener exactamente 10 números',
+                          },
                         })}
                         type="text"
                         className={`form-control ${errors.cedula ? 'is-invalid' : ''}`}
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        maxLength={10}
+                        placeholder='Ej: 0999999999'
                       />
                       {errors.cedula && <div className="invalid-feedback">{errors.cedula.message}</div>}
                     </div>
@@ -233,10 +260,12 @@ export const UsersAdminPage = () => {
                       <label className="form-label">Nombre</label>
                       <input
                         {...register('nombreCompleo', {
-                          required: 'El nombre es requerido',
+                          required: 'El nombre es obligatorio',
+                          minLength: { value: 2, message: 'Mínimo 2 caracteres' },
                         })}
                         type="text"
                         className={`form-control ${errors.nombreCompleo ? 'is-invalid' : ''}`}
+                        placeholder='Ej: Juan Carlos'
                       />
                       {errors.nombreCompleo && <div className="invalid-feedback">{errors.nombreCompleo.message}</div>}
                     </div>
@@ -245,10 +274,12 @@ export const UsersAdminPage = () => {
                       <label className="form-label">Apellido</label>
                       <input
                         {...register('apellidoCompleto', {
-                          required: 'El apellido es requerido',
+                          required: 'El apellido es obligatorio',
+                          minLength: { value: 2, message: 'Mínimo 2 caracteres' },
                         })}
                         type="text"
                         className={`form-control ${errors.apellidoCompleto ? 'is-invalid' : ''}`}
+                        placeholder='Ej: Quintero Zabaleta'
                       />
                       {errors.apellidoCompleto && <div className="invalid-feedback">{errors.apellidoCompleto.message}</div>}
                     </div>
@@ -257,10 +288,15 @@ export const UsersAdminPage = () => {
                       <label className="form-label">Correo</label>
                       <input
                         {...register('correo', {
-                          required: 'El correo es requerido',
+                          required: 'El correo es obligatorio',
+                          pattern: {
+                            value: EMAIL_REGEX,
+                            message: 'Correo no válido',
+                          },
                         })}
                         type="email"
                         className={`form-control ${errors.correo ? 'is-invalid' : ''}`}
+                        placeholder='usuario@ejemplo.com'
                       />
                       {errors.correo && <div className="invalid-feedback">{errors.correo.message}</div>}
                     </div>
@@ -268,36 +304,54 @@ export const UsersAdminPage = () => {
                     <div className="mb-3">
                       <label className="form-label">Teléfono</label>
                       <input
-                        {...register('telefono')}
+                        {...register('telefono', {
+                          required: 'El teléfono es obligatorio',
+                          pattern: {
+                            value: PHONE_REGEX,
+                            message: 'Teléfono no válido. Usa formato internacional, ej: +593979979736',
+                          },
+                        })}
                         type="text"
-                        className="form-control"
+                        className={`form-control ${errors.telefono ? 'is-invalid' : ''}`}
+                        inputMode="tel"
+                        pattern="\+[1-9][0-9]{7,14}"
+                        maxLength={PHONE_MAX_LENGTH}
+                        placeholder='Ej: +593979979736'
                       />
+                      {errors.telefono && <div className="invalid-feedback">{errors.telefono.message}</div>}
                     </div>
 
                     <div className="mb-3">
                       <label className="form-label">Dirección</label>
                       <input
-                        {...register('dirreccion')}
+                        {...register('dirreccion', {
+                          required: 'La dirección es obligatoria',
+                          minLength: { value: 5, message: 'Mínimo 5 caracteres' },
+                        })}
                         type="text"
-                        className="form-control"
+                        className={`form-control ${errors.dirreccion ? 'is-invalid' : ''}`}
+                        placeholder='Ej: Sucre y Maldonado'
                       />
+                      {errors.dirreccion && <div className="invalid-feedback">{errors.dirreccion.message}</div>}
                     </div>
 
                     <div className="mb-3">
                       <label className="form-label">Contraseña</label>
                       <input
                         {...register('contrasena', {
-                          required: 'La contraseña es requerida',
+                          required: 'La contraseña es obligatoria',
+                          minLength: { value: 6, message: 'Mínimo 6 caracteres' },
                         })}
                         type="password"
                         className={`form-control ${errors.contrasena ? 'is-invalid' : ''}`}
+                        placeholder='Mínimo 6 caracteres'
                       />
                       {errors.contrasena && <div className="invalid-feedback">{errors.contrasena.message}</div>}
                     </div>
 
                     <div className="d-flex gap-2 justify-content-between">
                       <button type="submit" disabled={isSubmitting} className="btn btn-primary flex-grow-1">
-                        {isSubmitting ? 'Creando...' : 'Crear Usuario'}
+                        {isSubmitting ? 'Guardando…' : 'Guardar usuario'}
                       </button>
                       <button
                         type="button"
@@ -338,7 +392,7 @@ export const UsersAdminPage = () => {
                         disabled={isSubmittingEdit}
                         className="btn btn-primary flex-grow-1"
                       >
-                        {isSubmittingEdit ? 'Actualizando...' : 'Guardar Cambios'}
+                        {isSubmittingEdit ? 'Guardando…' : 'Guardar cambios'}
                       </button>
                       <button
                         type="button"
@@ -390,7 +444,7 @@ export const UsersAdminPage = () => {
                         className="btn btn-warning"
                       >
                         <i className="bi bi-pencil me-2" />
-                        Editar Rol/Estado
+                        Editar rol/estado
                       </button>
                       <button
                         onClick={() => handleDelete(selectedUser)}
@@ -413,7 +467,7 @@ export const UsersAdminPage = () => {
                     className="btn btn-success w-100"
                   >
                     <i className="bi bi-plus-circle me-2" />
-                    Crear Nuevo Usuario
+                    Nuevo usuario
                   </button>
                 )}
               </div>
@@ -424,11 +478,11 @@ export const UsersAdminPage = () => {
           <div className="col-lg-8">
             <div className="card">
               <div className="card-header">
-                <h5>Lista de Usuarios ({paginateUsers.items})</h5>
+                <h5>Lista de usuarios ({paginateUsers.items})</h5>
               </div>
               <div className="card-body">
                 {loading ? (
-                  <p className="text-center text-muted">Cargando...</p>
+                  <p className="text-center text-muted">Cargando…</p>
                 ) : users.length === 0 ? (
                   <p className="text-center text-muted">No hay usuarios disponibles.</p>
                 ) : (

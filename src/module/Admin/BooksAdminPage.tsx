@@ -216,6 +216,7 @@ export const BooksAdminPage = () => {
                       required: 'El título es obligatorio',
                       minLength: { value: 2, message: 'Mínimo 2 caracteres' },
                     })}
+                    placeholder='Ej: Juanito de la mancha'
                   />
                   {errors.titulo && (
                     <div className="invalid-feedback d-block">{errors.titulo.message}</div>
@@ -233,6 +234,7 @@ export const BooksAdminPage = () => {
                       required: 'El autor es obligatorio',
                       minLength: { value: 2, message: 'Mínimo 2 caracteres' },
                     })}
+                    placeholder='Ej: Juan Pérez'
                   />
                   {errors.autor && (
                     <div className="invalid-feedback d-block">{errors.autor.message}</div>
@@ -257,6 +259,7 @@ export const BooksAdminPage = () => {
                             message: 'No puede ser mayor al año actual',
                           },
                         })}
+                        placeholder='Ej: 2020'
                       />
                       {errors.anioPublicacion && (
                         <div className="invalid-feedback d-block">
@@ -278,6 +281,7 @@ export const BooksAdminPage = () => {
                           required: 'El ISBN es obligatorio',
                           minLength: { value: 5, message: 'Mínimo 5 caracteres' },
                         })}
+                        placeholder='Ej: 978-3-16-148410-0'
                       />
                       {errors.isbn && (
                         <div className="invalid-feedback d-block">{errors.isbn.message}</div>
@@ -401,6 +405,7 @@ export const BooksAdminPage = () => {
                       required: 'La sinopsis es obligatoria',
                       minLength: { value: 10, message: 'Mínimo 10 caracteres' },
                     })}
+                    placeholder='Ej: Una emocionante aventura literaria'
                   />
                   {errors.sinopsis && (
                     <div className="invalid-feedback d-block">{errors.sinopsis.message}</div>
@@ -415,6 +420,7 @@ export const BooksAdminPage = () => {
                     className={`form-control ${errors.criticas ? 'is-invalid' : ''}`}
                     rows={3}
                     {...register('criticas')}
+                    placeholder='Ej: Una crítica constructiva sobre el libro'
                   />
                   {errors.criticas && (
                     <div className="invalid-feedback d-block">{errors.criticas.message}</div>

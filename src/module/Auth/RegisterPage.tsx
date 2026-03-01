@@ -34,7 +34,9 @@ export const RegisterPage = () => {
       .replace(/(?!^)\+/g, "")
       .slice(0, PHONE_MAX_LENGTH);
 
-    if (sanitized === "" || PHONE_REGEX.test(sanitized) || sanitized === "+") {
+    const partialPhoneRegex = /^\+?\d{0,15}$/;
+
+    if (sanitized === "" || partialPhoneRegex.test(sanitized) || sanitized === "+") {
       setTelefono(sanitized);
     }
   };
@@ -56,7 +58,7 @@ export const RegisterPage = () => {
     }
 
     if (!PHONE_REGEX.test(telefonoNormalizado)) {
-      setError("El teléfono debe tener formato válido, por ejemplo: +593979979736 (máx. 13 caracteres).");
+      setError("El teléfono debe tener formato internacional válido (E.164), por ejemplo: +593979979736.");
       return;
     }
 
@@ -118,7 +120,7 @@ export const RegisterPage = () => {
                   value={telefono}
                   onChange={(e) => handleTelefonoChange(e.target.value)}
                   inputMode="tel"
-                  pattern="\+?[0-9]{1,12}"
+                  pattern="\+[1-9][0-9]{7,14}"
                   maxLength={PHONE_MAX_LENGTH}
                   required
                   placeholder="Ej: +593999999999"

@@ -139,13 +139,13 @@ export const CreateUser = () => {
                     className={`form-control ${errors.telefono ? 'is-invalid' : ''}`}
                     placeholder="Ej: +593979979736"
                     inputMode="tel"
-                    pattern="\+?[0-9]{1,12}"
+                    pattern="(0[0-9]{9}|\+593[0-9]{9})"
                     maxLength={PHONE_MAX_LENGTH}
                     {...register('telefono', {
                       required: 'El teléfono es obligatorio',
                       pattern: {
                         value: PHONE_REGEX,
-                        message: 'Teléfono no válido. Ej: +593979979736',
+                        message: 'Teléfono no válido. Usa formato internacional, ej: +593979979736',
                       },
                     })}
                   />

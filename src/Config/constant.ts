@@ -79,16 +79,17 @@ export const ONLY_NUMBERS_REGEX = /^\d+$/;
 export const CEDULA_REGEX = /^\d{10}$/;
 
 /**
- * Longitud máxima para teléfono en formato internacional
- * Ejemplo válido: +593979979736
+ * Longitud máxima para teléfono en formato E.164
+ * Incluye '+' y hasta 15 dígitos (máx. 16 caracteres en total)
  */
-export const PHONE_MAX_LENGTH = 13;
+export const PHONE_MAX_LENGTH = 16;
 
 /**
- * Expresión regular para teléfono con formato internacional básico.
- * Permite opcional '+' al inicio y hasta 12 dígitos (13 caracteres totales con '+').
+ * Expresión regular para teléfono internacional (E.164).
+ * Formato válido: '+' seguido de 8 a 15 dígitos, iniciando en 1-9.
+ * Ejemplos válidos: +593979979736, +14155552671
  */
-export const PHONE_REGEX = /^\+?\d{1,12}$/;
+export const PHONE_REGEX = /^\+[1-9]\d{7,14}$/;
 
 /**
  * Items por página

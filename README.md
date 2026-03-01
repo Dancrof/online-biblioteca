@@ -10,6 +10,8 @@ Sistema de gestión de biblioteca online desarrollado con React + TypeScript + V
 - 📋 Sistema de préstamos (rentas)
 - 🖼️ Carga de imágenes con Cloudinary
 - 🔍 Búsqueda y filtrado de libros
+- ✅ Validaciones unificadas en formularios de usuario (registro, crear usuario y admin)
+- 🌍 Validación de teléfono internacional en formato E.164
 - 📱 Diseño responsive
 
 ## 🛠️ Tecnologías
@@ -303,6 +305,36 @@ PORT=4000
 ```
 
 `NODE_ENV` se define en `docker-compose`/`Dockerfile.api` para despliegue.
+
+---
+
+## ✅ Validaciones recientes (Marzo 2026)
+
+- Se unificaron las reglas de validación entre:
+   - Registro de usuario
+   - Crear usuario (módulo User)
+   - Crear usuario desde panel administrador
+- El campo teléfono ahora usa formato internacional E.164 en toda la aplicación.
+
+### Teléfono (E.164)
+
+- Formato requerido: `+` seguido de 8 a 15 dígitos.
+- Ejemplos válidos:
+   - `+593979979736`
+   - `+14155552671`
+   - `+34612345678`
+- Ejemplos inválidos:
+   - `09898768`
+   - `593979979736` (sin `+`)
+   - `+012345678` (no puede iniciar con 0 después de `+`)
+
+### Creación de usuario (Admin)
+
+- Se aplican las mismas validaciones que en registro para cédula, teléfono, correo, dirección y contraseña.
+- Antes de enviar al backend:
+   - Se normalizan campos de texto (`trim`).
+   - El correo se transforma a minúsculas.
+   - La contraseña se cifra antes de guardarse.
 
 ---
 
